@@ -38,12 +38,13 @@ using std::cerr;
 using std::endl;
 using std::min;
 
-Graph::Graph(void)
+Graph::Graph(double modularity_resolution)
 {
 	m_size = 0;
 	m_totalWeight = 0.0;
 	m_isOriented = false;
 	m_communityNumber = 0;
+	mod_resolution = modularity_resolution;
 }
 
 
@@ -68,7 +69,7 @@ void Graph::FillMatrix(const vector<int>& src, const vector<int>& dst, const vec
 	}
 }
 
-void Graph::FillModMatrix(const vector<int>& src, const vector<int>& dst, const vector<double>& weight, double mod_resolution)
+void Graph::FillModMatrix(const vector<int>& src, const vector<int>& dst, const vector<double>& weight)
 {
 	int m = min(*min_element(src.begin(), src.end()), *min_element(dst.begin(), dst.end()));
 	if(m > 0)
@@ -101,7 +102,7 @@ void Graph::FillModMatrix(const vector<int>& src, const vector<int>& dst, const 
 			m_modMatrix[i][j] = m_modMatrix[j][i] = (m_modMatrix[i][j] + m_modMatrix[j][i]) / 2;
 }
 
-void Graph::ReadFromEdgelist(const std::string& fname, double mod_resolution)
+void Graph::ReadFromEdgelist(const std::string& fname)
 {
 	ifstream file(fname.c_str());
 	if(!file.is_open())
@@ -124,10 +125,10 @@ void Graph::ReadFromEdgelist(const std::string& fname, double mod_resolution)
 		}
 	}
 	file.close();
-	FillModMatrix(src, dst, weight, mod_resolution);
+	FillModMatrix(src, dst, weight);
 }
 
-void Graph::ReadFromPajeck(const std::string& fname, double mod_resolution)
+void Graph::ReadFromPajeck(const std::string& fname)
 {
 	ifstream file(fname.c_str());
 	if(!file.is_open())
@@ -171,7 +172,7 @@ void Graph::ReadFromPajeck(const std::string& fname, double mod_resolution)
 		}
 	}
 	file.close();
-	FillModMatrix(src, dst, weight, mod_resolution);
+	FillModMatrix(src, dst, weight);
 }
 
 double Graph::EdgeWeight(int i, int j) const

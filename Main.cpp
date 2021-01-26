@@ -62,12 +62,12 @@ int main(int argc, char** argv)
 	string fileName = argv[1];
 	srand(time(0));
 
-	Graph G;
+	Graph G(mod_resolution);
 	string ext = fileName.substr(fileName.rfind('.'), fileName.length() - fileName.rfind('.'));
 	if(ext == ".edgelist")
-		G.ReadFromEdgelist(fileName, mod_resolution);
+		G.ReadFromEdgelist(fileName);
 	else if(ext == ".net")
-		G.ReadFromPajeck(fileName, mod_resolution);
+		G.ReadFromPajeck(fileName);
 	if(G.Size() <= 0)
 	{
 		cerr << "Error: graph is empty" << endl;

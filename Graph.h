@@ -28,11 +28,11 @@
 class Graph
 {
 public:
-	Graph(void);
+	Graph(double modularity_resolution = 1);
 	virtual ~Graph(void);
 
-	void ReadFromEdgelist(const std::string& fname, double mod_resolution);
-	void ReadFromPajeck(const std::string& fname, double mod_resolution);
+	void ReadFromEdgelist(const std::string& fname);
+	void ReadFromPajeck(const std::string& fname);
 	void CalcModMtrix();
 
 	int Size() const {return m_size;}
@@ -55,13 +55,16 @@ public:
 
 private:
 	void FillMatrix(const std::vector<int>& src, const std::vector<int>& dst, const std::vector<double>& weight);
-	void FillModMatrix(const std::vector<int>& src, const std::vector<int>& dst, const std::vector<double>& weight, double mod_resolution);
+	void FillModMatrix(const std::vector<int>& src, const std::vector<int>& dst, const std::vector<double>& weight);
 
 private:
 	int m_size;
 	double m_totalWeight;
 	int m_communityNumber;
 	bool m_isOriented;
+	// Modularity Resolution Parameter
+	// as per Newman 2016 (https://journals.aps.org/pre/abstract/10.1103/PhysRevE.94.052315)
+	double mod_resolution;
 	std::vector<std::vector<double> > m_matrix;
 	std::vector<std::vector<double> > m_modMatrix;
 	std::vector<int> m_communities;
