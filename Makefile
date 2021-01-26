@@ -7,8 +7,8 @@ LFLAGS = -lm
 
 TARGET  = comboCPP
 
-HEADER  = Graph.h
-FILES = Graph.cc Main.cc
+HEADER  = Graph.h Combo.h
+FILES = Graph.cc Combo.cc Main.cc
 
 OBJECTS = $(FILES:.cc=.o)
 
