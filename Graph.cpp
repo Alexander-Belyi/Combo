@@ -200,7 +200,7 @@ void Graph::CalcModMtrix()
 		}
 	for(int i = 0; i < m_size; ++i)
 		for(int j = 0; j < m_size; ++j)
-			m_modMatrix[i][j] -= sumQ1[i]*sumQ2[j];
+			m_modMatrix[i][j] -= mod_resolution * sumQ1[i]*sumQ2[j];
 	for(int i = 0; i < m_size; ++i)
 		for(int j = 0; j < m_size; ++j)
 			m_modMatrix[i][j] = m_modMatrix[j][i] = (m_modMatrix[i][j] + m_modMatrix[j][i]) / 2;
