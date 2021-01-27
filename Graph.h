@@ -64,7 +64,7 @@ private:
 	bool m_isDirected;
 	// Modularity Resolution Parameter
 	// as per Newman 2016 (https://journals.aps.org/pre/abstract/10.1103/PhysRevE.94.052315)
-	double mod_resolution;
+	double m_mod_resolution;
 	std::vector<std::vector<double> > m_matrix;
 	std::vector<std::vector<double> > m_modMatrix;
 	std::vector<int> m_communities;

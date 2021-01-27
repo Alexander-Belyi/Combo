@@ -47,7 +47,7 @@ Graph::Graph(double modularity_resolution)
 	m_totalWeight = 0.0;
 	m_isDirected = false;
 	m_communityNumber = 0;
-	mod_resolution = modularity_resolution;
+	m_mod_resolution = modularity_resolution;
 }
 
 
@@ -95,7 +95,7 @@ void Graph::FillModMatrix(const vector<int>& src, const vector<int>& dst, const 
 	}
 	for(int i = 0; i < m_size; ++i)
 		for(int j = 0; j < m_size; ++j)
-			m_modMatrix[i][j] -= mod_resolution * sumQ1[i]*sumQ2[j];
+			m_modMatrix[i][j] -= m_mod_resolution * sumQ1[i]*sumQ2[j];
 	for(int i = 0; i < m_size; ++i)
 		for(int j = 0; j < m_size; ++j)
 			m_modMatrix[i][j] = m_modMatrix[j][i] = (m_modMatrix[i][j] + m_modMatrix[j][i]) / 2;
@@ -241,7 +241,7 @@ void Graph::CalcModMatrix()
 		}
 	for(int i = 0; i < m_size; ++i)
 		for(int j = 0; j < m_size; ++j)
-			m_modMatrix[i][j] -= mod_resolution * sumQ1[i]*sumQ2[j];
+			m_modMatrix[i][j] -= m_mod_resolution * sumQ1[i]*sumQ2[j];
 	for(int i = 0; i < m_size; ++i)
 		for(int j = 0; j < m_size; ++j)
 			m_modMatrix[i][j] = m_modMatrix[j][i] = (m_modMatrix[i][j] + m_modMatrix[j][i]) / 2;

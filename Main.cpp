@@ -26,38 +26,31 @@
 #include <iostream>
 using namespace std;
 
-#define INF 1000000000
-
-extern bool use_fixed_tries;
-
 int main(int argc, char** argv)
 {
-	int max_comunities = INF;
+	int max_comunities = 2e9;
 	string file_suffix = "comm_comboC++";
 	// Modularity Resolution Parameter
 	// as per Newman 2016 (https://journals.aps.org/pre/abstract/10.1103/PhysRevE.94.052315)
 	double mod_resolution = 1.0;
-	if(argc < 2)
-	{
+	int num_split_attempts = 0;
+	int fixed_split_step = 0;
+	if (argc < 2) {
 		cerr << "Error: provide path to edge list (.edgelist) or pajeck (.net) file" << endl;
 		return -1;
 	}
-	if(argc > 2)
-	{
+	if (argc > 2) {
 		if(string(argv[2]) != "INF")
-		max_comunities = atoi(argv[2]);
+			max_comunities = atoi(argv[2]);
 	}
-	if(argc > 3) 
-	{
+	if (argc > 3) 
 		mod_resolution = atof(argv[3]);
-	}
-	if(argc > 4) 
-	{
+	if (argc > 4) 
 		file_suffix = argv[4];
-	}
-	if(argc > 5)
-		use_fixed_tries = atoi(argv[5]);
-
+	if (argc > 5)
+		num_split_attempts = atoi(argv[5]);
+	if (argc > 6)
+		fixed_split_step = atoi(argv[5]);
 
 	string fileName = argv[1];
 	srand(time(0));
@@ -75,7 +68,8 @@ int main(int argc, char** argv)
 	}
 
 	clock_t startTime = clock();
-	RunCombo(G, max_comunities);
+	ComboAlgorithm combo(num_split_attempts, fixed_split_step);
+	combo.Run(G, max_comunities);
 
 	//cout << fileName << " " << G.Modularity() << endl;
 	//cout << "Elapsed time is " << (double(clock() - startTime)/CLOCKS_PER_SEC) << endl;
