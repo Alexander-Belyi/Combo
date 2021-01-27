@@ -1,5 +1,5 @@
 /*                                                                            
-    Copyright 2014
+    Copyright 2021
     Alexander Belyi <alexander.belyi@gmail.com>,
     Stanislav Sobolevsky <stanly@mit.edu>                                               
                                                                             
@@ -33,7 +33,7 @@ public:
 
 	void ReadFromEdgelist(const std::string& fname);
 	void ReadFromPajeck(const std::string& fname);
-	void CalcModMtrix();
+	void CalcModMatrix();
 
 	int Size() const {return m_size;}
 	int CommunityNumber() const {return m_communityNumber;};
@@ -61,7 +61,7 @@ private:
 	int m_size;
 	double m_totalWeight;
 	int m_communityNumber;
-	bool m_isOriented;
+	bool m_isDirected;
 	// Modularity Resolution Parameter
 	// as per Newman 2016 (https://journals.aps.org/pre/abstract/10.1103/PhysRevE.94.052315)
 	double mod_resolution;

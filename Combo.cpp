@@ -21,7 +21,6 @@
 
 
 #include "Graph.h"
-#include <cstdio>
 #include <cmath>
 #include <iostream>
 #include <algorithm>
@@ -104,11 +103,12 @@ double PerformKernighansShift(const vector< vector<double> >& Q, const vector<do
 	for(int i = 0; i < n; ++i)
 	{
 		for(int j = 0; j < n; ++j)
-			if(i != j)
+			if(i != j) {
 				if(communitiesOld[i] == communitiesOld[j])
 					gains[i] -= Q[i][j];
 				else
 					gains[i] += Q[i][j];
+			}
 		if(communitiesOld[i])
 			gains[i] -= correctionVector[i];
 		else
@@ -190,7 +190,7 @@ double Split(vector< vector<double> >& Q, const vector<double>& correctionVector
 				{
 					double mod_gain_verify = ModGain(Q, correctionVector, communities0);
 					if(fabs(mod_gain_verify - mod_gain0) > THRESHOLD)
-						printf("ERROR\n");
+						cerr << "ERROR" << endl;
 				}
 
 			}
@@ -263,10 +263,9 @@ void DeleteEmptyCommunities(Graph& G, vector< vector<double> >& moves, vector< v
 
 void RunCombo(Graph& G, int max_comunities)
 {
-	G.CalcModMtrix();
+	G.CalcModMatrix();
 	G.SetCommunities(vector<int>(G.Size(), 0));
 	double currentMod = G.Modularity();
-	//printf("Initial modularity: %6f\n", currentMod);
 	vector< vector<double> > moves(2, vector<double>(2, 0)); //results of splitting communities
 	//vectors of boolean meaning that corresponding vertex should be moved to dest
 	vector< vector<int> > splits_communities(2, vector<int>(G.Size(), 0)); //best split vectors
@@ -287,7 +286,7 @@ void RunCombo(Graph& G, int max_comunities)
 			double oldMod = currentMod;
 			currentMod = G.Modularity();
 			if(fabs(currentMod - oldMod - best_gain) > THRESHOLD)
-				printf("ERROR\n");
+				cerr << "ERROR" << endl;
 		}
 		if(comunityAdded && dest < max_comunities - 1)
 		{

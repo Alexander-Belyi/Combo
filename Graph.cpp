@@ -1,5 +1,5 @@
 /*                                                                            
-    Copyright 2014
+    Copyright 2021
     Alexander Belyi <alexander.belyi@gmail.com>,
     Stanislav Sobolevsky <stanly@mit.edu>                                               
                                                                             
@@ -24,11 +24,14 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <sstream>
+#include <locale>
 #include <vector>
 #include <set>
 #include <algorithm>
 using std::ifstream;
 using std::ofstream;
+using std::stringstream;
 using std::string;
 using std::vector;
 using std::set;
@@ -42,7 +45,7 @@ Graph::Graph(double modularity_resolution)
 {
 	m_size = 0;
 	m_totalWeight = 0.0;
-	m_isOriented = false;
+	m_isDirected = false;
 	m_communityNumber = 0;
 	mod_resolution = modularity_resolution;
 }
@@ -57,41 +60,37 @@ void Graph::FillMatrix(const vector<int>& src, const vector<int>& dst, const vec
 	int m = min(*min_element(src.begin(), src.end()), *min_element(dst.begin(), dst.end()));
 	if(m > 0)
 		m = 1;
-	if(!m_isOriented)
+	if(!m_isDirected)
 		m_totalWeight *= 2;
 	m_size = 1 + max(*max_element(src.begin(), src.end()), *max_element(dst.begin(), dst.end())) - m;
 	m_matrix.assign(m_size, vector<double>(m_size, 0));
 	for(int i = 0; i < src.size(); ++i)
 	{
 		m_matrix[src[i]-m][dst[i]-m] += weight[i];
-		if(!m_isOriented)
+		if(!m_isDirected)
 			m_matrix[dst[i]-m][src[i]-m] += weight[i];
 	}
 }
 
 void Graph::FillModMatrix(const vector<int>& src, const vector<int>& dst, const vector<double>& weight)
 {
-	int m = min(*min_element(src.begin(), src.end()), *min_element(dst.begin(), dst.end()));
-	if(m > 0)
-		m = 1;
-	m_size = 1 + max(*max_element(src.begin(), src.end()), *max_element(dst.begin(), dst.end())) - m;
-	if(!m_isOriented)
+	if(!m_isDirected)
 		m_totalWeight *= 2;
 	m_modMatrix.assign(m_size, vector<double>(m_size, 0));
 	vector<double> sumQ2(m_size, 0.0);
 	vector<double> sumQ1(m_size, 0.0);
 	for(int i = 0; i < src.size(); ++i)
 	{
-		m_modMatrix[src[i]-m][dst[i]-m] += weight[i] / m_totalWeight;
-		if(!m_isOriented)
-			m_modMatrix[dst[i]-m][src[i]-m] += weight[i] / m_totalWeight;
+		m_modMatrix[src[i]][dst[i]] += weight[i] / m_totalWeight;
+		if(!m_isDirected)
+			m_modMatrix[dst[i]][src[i]] += weight[i] / m_totalWeight;
 	
-		sumQ1[src[i]-m] += weight[i] / m_totalWeight;
-		sumQ2[dst[i]-m] += weight[i] / m_totalWeight;
-		if(!m_isOriented)
+		sumQ1[src[i]] += weight[i] / m_totalWeight;
+		sumQ2[dst[i]] += weight[i] / m_totalWeight;
+		if(!m_isDirected)
 		{
-			sumQ1[dst[i]-m] += weight[i] / m_totalWeight;
-			sumQ2[src[i]-m] += weight[i] / m_totalWeight;
+			sumQ1[dst[i]] += weight[i] / m_totalWeight;
+			sumQ2[src[i]] += weight[i] / m_totalWeight;
 		}
 	}
 	for(int i = 0; i < m_size; ++i)
@@ -106,18 +105,28 @@ void Graph::ReadFromEdgelist(const std::string& fname)
 {
 	ifstream file(fname.c_str());
 	if(!file.is_open())
+    {
+        cerr << "File " << fname << " can not be opened." << endl;
 		return;
+    }
 	vector<int> src, dst;
 	vector<double> weight;
+	int min_vertex_number = 2e9;
+	int max_vertex_number = 0;
 	while(file.good())
 	{
-		char buff[256];
-		file.getline(buff, 255);
+		string line;
+		getline(file, line);
 		int s = -1, d = -1;
 		double w = 1.0;
-		sscanf(buff, "%d %d %lf", &s, &d, &w);
-		if(s != -1 && d != -1)
+		stringstream ss(line);
+		ss >> s >> d;
+		if(!ss.eof())
+			ss >> w;
+		if(!ss.fail() && s != -1 && d != -1)
 		{
+			min_vertex_number = min(min_vertex_number, min(s, d));
+			max_vertex_number = max(max_vertex_number, max(s, d));
 			src.push_back(s);
 			dst.push_back(d);
 			weight.push_back(w);
@@ -125,6 +134,13 @@ void Graph::ReadFromEdgelist(const std::string& fname)
 		}
 	}
 	file.close();
+	m_isDirected = true;
+	m_size = 1 + max_vertex_number - min_vertex_number;
+	for(int i = 0; i < src.size(); ++i)
+	{
+		src[i] -= min_vertex_number;
+		dst[i] -= min_vertex_number;
+	}
 	FillModMatrix(src, dst, weight);
 }
 
@@ -132,38 +148,57 @@ void Graph::ReadFromPajeck(const std::string& fname)
 {
 	ifstream file(fname.c_str());
 	if(!file.is_open())
+    {
+        cerr << "File " << fname << " can not be opened." << endl;
 		return;
+    }
+    std::locale loc;
 	vector<int> src, dst;
 	vector<double> weight;
+	int min_vertex_number = 2e9;
+	int max_vertex_number = 0;
 	bool skip = true;
 	while(file.good())
 	{
-		char buff[256];
-		file.getline(buff, 255);
-		string line = buff;
-
-		// Strip carriage return on Windows
-		if(line[line.length() - 1] == '\r') {
-			line = line.substr(0, line.length() - 1);
-		}
-
-		if(line == "*Edges" || line == "*edges")
+		string line;
+		getline(file, line);
+		stringstream ss(line);
+        string trimmed_string;
+        ss >> trimmed_string; // Strips carriage return on Windows
+        transform(trimmed_string.begin(), trimmed_string.end(), trimmed_string.begin(), [&loc](char elem){return std::tolower(elem, loc);});
+		if(trimmed_string == "*edges")
 		{
 			skip = false;
-			m_isOriented = false;
+			m_isDirected = false;
 		}
-		else if(line == "*Arcs" || line == "*arcs")
+		else if(trimmed_string == "*arcs")
 		{
 			skip = false;
-			m_isOriented = true;
+			m_isDirected = true;
+		}
+		else if(skip)
+		{
+			ss.str(line);
+			int v = -1;
+			ss >> v;
+			if(!ss.fail())
+			{
+				min_vertex_number = min(min_vertex_number, v);
+				max_vertex_number = max(max_vertex_number, v);
+			}
 		}
 		else if(!skip)
 		{
 			int s = -1, d = -1;
 			double w = 1.0;
-			sscanf(buff, "%d %d %lf", &s, &d, &w);
-			if(s != -1 && d != -1)
+			ss.str(line);
+			ss >> s >> d;
+			if(!ss.eof())
+				ss >> w;
+			if(!ss.fail() && s != -1 && d != -1)
 			{
+				min_vertex_number = min(min_vertex_number, min(s, d));
+				max_vertex_number = max(max_vertex_number, max(s, d));
 				src.push_back(s);
 				dst.push_back(d);
 				weight.push_back(w);
@@ -172,6 +207,12 @@ void Graph::ReadFromPajeck(const std::string& fname)
 		}
 	}
 	file.close();
+	m_size = 1 + max_vertex_number - min_vertex_number;
+	for(int i = 0; i < src.size(); ++i)
+	{
+		src[i] -= min_vertex_number;
+		dst[i] -= min_vertex_number;
+	}
 	FillModMatrix(src, dst, weight);
 }
 
@@ -180,7 +221,7 @@ double Graph::EdgeWeight(int i, int j) const
 	return m_matrix[i][j];
 }
 
-void Graph::CalcModMtrix()
+void Graph::CalcModMatrix()
 {
 	if(!m_modMatrix.empty())
 		return;
@@ -232,7 +273,10 @@ void Graph::PrintCommunity(const string& fileName) const
 {
 	ofstream file(fileName.c_str());
 	if(!file.is_open())
+    {
+        cerr << "File " << fileName << " can not be opened." << endl;
 		return;
+    }
 	for(int i = 0; i < m_size; ++i)
 		file << m_communities[i] << endl;
 	file.close();
