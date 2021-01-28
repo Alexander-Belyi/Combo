@@ -1,5 +1,5 @@
 /*
-    Copyright 2014
+    Copyright 2021
     Alexander Belyi <alexander.belyi@gmail.com>,
     Stanislav Sobolevsky <stanly@mit.edu>
 
@@ -19,11 +19,11 @@
     along with Combo.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Graph.h"
 #include "Combo.h"
+#include "Graph.h"
 #include <ctime>
-#include <string>
 #include <iostream>
+#include <string>
 using namespace std;
 
 int main(int argc, char** argv)

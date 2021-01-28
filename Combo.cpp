@@ -20,15 +20,17 @@
 */
 
 
-#include "Graph.h"
 #include "Combo.h"
+#include "Graph.h"
+
+#include <algorithm>
+#include <chrono>
 #include <cmath>
 #include <iostream>
-#include <algorithm>
+#include <random>
 using namespace std;
 
 #define THRESHOLD 1e-6
-const int RAND_MAX2 = RAND_MAX >> 1;
 
 
 vector<double> Sum(const vector< vector<double> >& matrix)
@@ -199,7 +201,7 @@ double ComboAlgorithm::Split(vector< vector<double> >& Q, const vector<double>& 
 			}
 		} else {
 			for(int i = 0; i < n; ++i)
-				communities[i] = rand() < RAND_MAX2;
+				communities[i] = int(m_bernoulli_distribution(m_random_number_generator));
 		}
 
 		double mod_gain_total = ModGain(Q, correctionVector, communities);
@@ -361,8 +363,20 @@ void ComboAlgorithm::SetNumberOfSplitAttempts(int split_tries)
 	m_num_split_attempts = split_tries;
 }
 
-ComboAlgorithm::ComboAlgorithm(int num_split_attempts, int fixed_split_step)
+ComboAlgorithm::ComboAlgorithm(long long random_seed, int num_split_attempts, int fixed_split_step) :
+	m_random_number_generator(random_seed),
+	m_bernoulli_distribution(0.5),
+	m_fixed_split_step(fixed_split_step)
 {
 	SetNumberOfSplitAttempts(num_split_attempts);
-	m_fixed_split_step = fixed_split_step;
 }
+
+ComboAlgorithm::ComboAlgorithm(): 
+	ComboAlgorithm(std::chrono::duration_cast<std::chrono::milliseconds>(
+		std::chrono::steady_clock::now().time_since_epoch()).count())
+{}
+
+ComboAlgorithm::ComboAlgorithm(int num_split_attempts, int fixed_split_step) :
+	ComboAlgorithm(std::chrono::duration_cast<std::chrono::milliseconds>(
+		std::chrono::steady_clock::now().time_since_epoch()).count(), num_split_attempts, fixed_split_step)
+{}
