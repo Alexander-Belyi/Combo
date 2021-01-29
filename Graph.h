@@ -19,7 +19,8 @@
     along with Combo.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#pragma once
+#ifndef GRAPH_H
+#define GRAPH_H
 
 #include <string>
 #include <vector>
@@ -70,3 +71,4 @@ private:
 	std::vector<int> m_communities;
 };
 
+#endif //GRAPH_H

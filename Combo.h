@@ -19,6 +19,9 @@
     along with Combo.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef COMBO_H
+#define COMBO_H
+
 #include "Graph.h"
 #include <random>
 #include <vector>
@@ -48,3 +51,5 @@ private:
     void reCalc(Graph& G, std::vector< std::vector<double> >& moves, std::vector< std::vector<int> >& splits_communities, int origin, int dest);
     double Split(std::vector< std::vector<double> >& Q, const std::vector<double>& correctionVector, std::vector<int>& splitCommunity);
 };
+
+#endif //COMBO_H
