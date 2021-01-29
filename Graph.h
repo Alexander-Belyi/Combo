@@ -24,50 +24,49 @@
 
 #include <string>
 #include <vector>
-#include <set>
 
 class Graph
 {
 public:
 	Graph(double modularity_resolution = 1);
-	virtual ~Graph(void);
+	virtual ~Graph();
 
-	void ReadFromEdgelist(const std::string& fname);
-	void ReadFromPajeck(const std::string& fname);
+	void ReadFromEdgelist(const std::string& file_name);
+	void ReadFromPajeck(const std::string& file_name);
 	void CalcModMatrix();
 
 	int Size() const {return m_size;}
-	int CommunityNumber() const {return m_communityNumber;};
-	double EdgeWeight(int i, int j) const;
-	bool IsCommunityEmpty(int comm) const;
+	int NumberOfCommunities() const {return m_number_of_communities;};
+	double EdgeWeight(int u, int v) const;
+	bool IsCommunityEmpty(int community) const;
 
 	double Modularity() const;
 	std::vector< std::vector<double> > GetModularitySubmatrix(const std::vector<int>& indices) const;
-	std::vector<double> GetCorrectionVector(const std::vector<int>& origCommInd, const std::vector<int>& destCommInd) const;
+	std::vector<double> GetCorrectionVector(const std::vector<int>& orig_comm_ind, const std::vector<int>& dest_comm_ind) const;
 	
 	void SetCommunities(const std::vector<int>& new_communities, int number = -1);
 	std::vector<int> Communities() const {return m_communities;};
 	std::vector<int> CommunityIndices(int comm) const;
 
-	void PerformSplit(int origin, int dest, const std::vector<int>& split_communities);
-	bool DeleteCommunityIfEmpty(int comm);
+	void PerformSplit(int origin, int destination, const std::vector<int>& split_communities);
+	bool DeleteCommunityIfEmpty(int community);
 	void Print() const;
-	void PrintCommunity(const std::string& fileName) const;
+	void PrintCommunity(const std::string& file_name) const;
 
 private:
-	void FillMatrix(const std::vector<int>& src, const std::vector<int>& dst, const std::vector<double>& weight);
-	void FillModMatrix(const std::vector<int>& src, const std::vector<int>& dst, const std::vector<double>& weight);
+	void FillMatrix(const std::vector<int>& sources, const std::vector<int>& destinations, const std::vector<double>& weights);
+	void FillModMatrix(const std::vector<int>& sources, const std::vector<int>& destinations, const std::vector<double>& weights);
 
 private:
 	int m_size;
-	double m_totalWeight;
-	int m_communityNumber;
-	bool m_isDirected;
+	double m_total_weight;
+	int m_number_of_communities;
+	bool m_is_directed;
 	// Modularity Resolution Parameter
 	// as per Newman 2016 (https://journals.aps.org/pre/abstract/10.1103/PhysRevE.94.052315)
-	double m_mod_resolution;
+	double m_modularity_resolution;
 	std::vector<std::vector<double> > m_matrix;
-	std::vector<std::vector<double> > m_modMatrix;
+	std::vector<std::vector<double> > m_modularity_matrix;
 	std::vector<int> m_communities;
 };
 

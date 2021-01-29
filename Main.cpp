@@ -28,7 +28,7 @@ using namespace std;
 
 int main(int argc, char** argv)
 {
-	int max_comunities = 2e9;
+	int max_communities = 2e9;
 	string file_suffix = "comm_comboC++";
 	// Modularity Resolution Parameter
 	// as per Newman 2016 (https://journals.aps.org/pre/abstract/10.1103/PhysRevE.94.052315)
@@ -40,8 +40,8 @@ int main(int argc, char** argv)
 		return -1;
 	}
 	if (argc > 2) {
-		if(string(argv[2]) != "INF")
-			max_comunities = atoi(argv[2]);
+		if (string(argv[2]) != "INF")
+			max_communities = atoi(argv[2]);
 	}
 	if (argc > 3) 
 		mod_resolution = atof(argv[3]);
@@ -55,13 +55,13 @@ int main(int argc, char** argv)
 	string fileName = argv[1];
 	srand(time(0));
 
-	Graph G(mod_resolution);
+	Graph graph(mod_resolution);
 	string ext = fileName.substr(fileName.rfind('.'), fileName.length() - fileName.rfind('.'));
-	if(ext == ".edgelist")
-		G.ReadFromEdgelist(fileName);
-	else if(ext == ".net")
-		G.ReadFromPajeck(fileName);
-	if(G.Size() <= 0)
+	if (ext == ".edgelist")
+		graph.ReadFromEdgelist(fileName);
+	else if (ext == ".net")
+		graph.ReadFromPajeck(fileName);
+	if (graph.Size() <= 0)
 	{
 		cerr << "Error: graph is empty" << endl;
 		return -1;
@@ -69,12 +69,12 @@ int main(int argc, char** argv)
 
 	clock_t startTime = clock();
 	ComboAlgorithm combo(num_split_attempts, fixed_split_step);
-	combo.Run(G, max_comunities);
+	combo.Run(graph, max_communities);
 
 	//cout << fileName << " " << G.Modularity() << endl;
 	//cout << "Elapsed time is " << (double(clock() - startTime)/CLOCKS_PER_SEC) << endl;
 
-	G.PrintCommunity(fileName.substr(0, fileName.rfind('.')) + "_" + file_suffix + ".txt");
-	cout << G.Modularity() << endl;
+	graph.PrintCommunity(fileName.substr(0, fileName.rfind('.')) + "_" + file_suffix + ".txt");
+	cout << graph.Modularity() << endl;
 	return 0;
 }

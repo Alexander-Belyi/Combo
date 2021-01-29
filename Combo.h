@@ -31,7 +31,7 @@ public:
     ComboAlgorithm();
     explicit ComboAlgorithm(long long random_seed, int num_split_attempts = 0, int fixed_split_step = 0);
     ComboAlgorithm(int num_split_attempts, int fixed_split_step);
-    void Run(Graph& G, int max_comunities);
+    void Run(Graph& graph, int max_comunities);
     void SetFixedSplitStep(int fixed_split_step) {m_fixed_split_step = fixed_split_step;}
     void SetNumberOfSplitAttempts(int split_tries);
 private:
@@ -48,8 +48,9 @@ private:
     std::mt19937 m_random_number_generator;
     std::bernoulli_distribution m_bernoulli_distribution;
     double m_current_best_gain;
-    void reCalc(Graph& G, std::vector< std::vector<double> >& moves, std::vector< std::vector<int> >& splits_communities, int origin, int dest);
-    double Split(std::vector< std::vector<double> >& Q, const std::vector<double>& correctionVector, std::vector<int>& splitCommunity);
+    void ReCalc(Graph& graph, std::vector< std::vector<double> >& moves,
+        std::vector< std::vector<int> >& splits_communities, int origin, int destination);
+    double Split(std::vector< std::vector<double> >& Q, const std::vector<double>& correction_vector, std::vector<int>& to_be_moved);
 };
 
 #endif //COMBO_H
