@@ -1,14 +1,14 @@
 # Various flags
 CXX  = g++
 LINK = $(CXX)
-#CXXFLAGS = -I -Wall -g 
-CXXFLAGS = -I -Wall -O3 -funroll-loops -pipe
+#CXXFLAGS = -I -Wall -g -O0 -DDEBUG -std=c++17
+CXXFLAGS = -I -Wall -O3 -funroll-loops -pipe -std=c++17
 LFLAGS = -lm
 
 TARGET  = comboCPP
 
-HEADER  = Graph.h
-FILES = Graph.cc Main.cc
+HEADER  = Graph.h Combo.h
+FILES = Graph.cc Combo.cc Main.cc
 
 OBJECTS = $(FILES:.cc=.o)
 
