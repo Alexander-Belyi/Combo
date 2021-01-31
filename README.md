@@ -1,24 +1,14 @@
 # Combo
 
-I came across this neat tool in reading Alasdair Rae and Garrett Dash Nelson's
-beautiful [An Economic Geography of the United States: From Commutes to
-Megaregions](http://journals.plos.org/plosone/article?id=10.1371/journal.pone.0166083)
-in _PLOS One_. Unfortunately, the code wasn't contained in a repository
-anywhere, only available in `zip` form from the [Senseable
-Cities](http://senseable.mit.edu/community_detection/) website. For my ease, I
-put it here. What follows is more or less their original README.
-
 ## Description
 
 This is an implementation (for Modularity maximization) of the community
 detection algorithm called "Combo" described in the paper "General optimization
 technique for high-quality community detection in complex networks" by
 Stanislav Sobolevsky, Riccardo Campari, Alexander Belyi and Carlo Ratti.
-Please, send your feedback, bug reports and questions to:
+If you have any feedback, bug reports or questions, please submit an issue or start a discussion.
 
-alexander.belyi@gmail.com
-
-If you use this code, please, cite:
+If you use this code, please, consider citing:
 
 ```
 Sobolevsky S., Campari R., Belyi A., and Ratti C. "General optimization technique for high-quality community detection in complex networks" Phys. Rev. E 90, 012811
@@ -33,10 +23,10 @@ sure you have `g++` installed, and then run
 make
 ```
 
-Once compiled, you can run the program with
+Once compiled, you can run the program with (parameters' order matters)
 
 ```
-./comboCPP path_to_network_file.net [max_number_of_communities] [mod_resolution]
+./comboCPP path_to_network_file.net [max_number_of_communities] [mod_resolution] [file_suffix] [num_split_attempts] [fixed_split_step]
 ```
 
 The options are as follows:
@@ -45,6 +35,8 @@ The options are as follows:
   (default is "INF" for infinite)
 * `mod_resolution` - modularity resolution parameter (default is 1)
 * `file_suffix` - suffix appended to output file (default is "comm_comboC++")
+* `num_split_attempts` - number of attempts to split each community on every iteration (default is 0 meaning this number will be selected automatically on each iteration)
+* `fixed_split_step` - number of steps between trying to apply each of 6 predifined splits (default is 0 - don't use fixed splits, use only random splits)
 
 For example, you can make sure the compilation worked correctly by running:
 ```
