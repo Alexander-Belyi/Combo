@@ -29,7 +29,7 @@
 class ComboAlgorithm {
 public:
     ComboAlgorithm();
-    explicit ComboAlgorithm(long long random_seed, int num_split_attempts = 0, int fixed_split_step = 0);
+    explicit ComboAlgorithm(long long random_seed, int num_split_attempts, int fixed_split_step);
     ComboAlgorithm(int num_split_attempts, int fixed_split_step);
     void Run(Graph& graph, int max_comunities);
     void SetFixedSplitStep(int fixed_split_step) {m_fixed_split_step = fixed_split_step;}

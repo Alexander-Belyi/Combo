@@ -82,7 +82,7 @@ void Graph::FillModMatrix(const vector<int>& sources, const vector<int>& destina
 			m_modularity_matrix[destinations[i]][sources[i]] += weights[i] / m_total_weight;
 		sumQ1[sources[i]] += weights[i] / m_total_weight;
 		sumQ2[destinations[i]] += weights[i] / m_total_weight;
-		if (!m_is_directed){
+		if (!m_is_directed) {
 			sumQ1[destinations[i]] += weights[i] / m_total_weight;
 			sumQ2[sources[i]] += weights[i] / m_total_weight;
 		}
@@ -139,7 +139,7 @@ void Graph::ReadFromPajeck(const string& file_name)
 {
 	ifstream file(file_name.c_str());
 	if (!file.is_open()) {
-        cerr << "File " << file_name << " can not be opened." << endl;
+		cerr << "File " << file_name << " can not be opened." << endl;
 		return;
     }
     std::locale locale;
