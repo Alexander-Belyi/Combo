@@ -28,7 +28,7 @@
 class Graph
 {
 public:
-	Graph(double modularity_resolution = 1);
+	explicit Graph(double modularity_resolution = 1);
 	virtual ~Graph();
 
 	void ReadFromEdgelist(const std::string& file_name);
