@@ -352,7 +352,7 @@ ComboAlgorithm::ComboAlgorithm(long long random_seed, int num_split_attempts, in
 
 ComboAlgorithm::ComboAlgorithm(): 
 	ComboAlgorithm(std::chrono::duration_cast<std::chrono::milliseconds>(
-		std::chrono::steady_clock::now().time_since_epoch()).count(), 0, 0)
+		std::chrono::steady_clock::now().time_since_epoch()).count(), 0, 1)
 {}
 
 ComboAlgorithm::ComboAlgorithm(int num_split_attempts, int fixed_split_step) :

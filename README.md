@@ -36,7 +36,7 @@ The options are as follows:
 * `mod_resolution` - modularity resolution parameter (default is 1)
 * `file_suffix` - suffix appended to output file (default is "comm_comboC++")
 * `num_split_attempts` - number of attempts to split each community on every iteration (default is 0 meaning this number will be selected automatically on each iteration)
-* `fixed_split_step` - number of steps between trying to apply each of 6 predifined splits (default is 0 - don't use fixed splits, use only random splits)
+* `fixed_split_step` - number of steps between trying to apply each of 6 predifined splits (default is 1 - first 6 split attempts will be of predefined types, use 0 to use only random splits)
 
 For example, you can make sure the compilation worked correctly by running:
 ```
