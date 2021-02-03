@@ -23,19 +23,29 @@
 #define GRAPH_H
 
 #include <string>
+#include <tuple>
 #include <vector>
 
+class Graph;
+
+Graph ReadGraphFromFile(const std::string& file_name, double mod_resolution = 1);
+
+// To save memory we store only modularity matrix and keep m_matrix empty
 class Graph
 {
 public:
-	explicit Graph(double modularity_resolution = 1);
-	virtual ~Graph();
+	explicit Graph(bool is_directed = false, double modularity_resolution = 1);
+	Graph(int size, const std::vector<int>& sources, const std::vector<int>& destinations, const std::vector<double>& weights,
+		bool is_directed, double modularity_resolution = 1);
+	Graph(int size, const std::vector<std::tuple<int, int, double>>& edges, bool is_directed, double modularity_resolution = 1);
+	Graph(const Graph& graph);
+	Graph(Graph&& graph) noexcept;
+	Graph& operator=(Graph graph);
 
-	void ReadFromEdgelist(const std::string& file_name);
-	void ReadFromPajeck(const std::string& file_name);
 	void CalcModMatrix();
-
 	int Size() const {return m_size;}
+	int IsDirected() const {return m_is_directed;}
+	int ModularityResolution() const {return m_modularity_resolution;}
 	int NumberOfCommunities() const {return m_number_of_communities;};
 	double EdgeWeight(int u, int v) const;
 	bool IsCommunityEmpty(int community) const;
@@ -53,9 +63,13 @@ public:
 	void Print() const;
 	void PrintCommunity(const std::string& file_name) const;
 
+	friend void swap(Graph& left, Graph& right);
+
 private:
-	void FillMatrix(const std::vector<int>& sources, const std::vector<int>& destinations, const std::vector<double>& weights);
-	void FillModMatrix(const std::vector<int>& sources, const std::vector<int>& destinations, const std::vector<double>& weights);
+	void FillMatrix(int size, const std::vector<int>& sources, const std::vector<int>& destinations, const std::vector<double>& weights);
+	void FillMatrix(int size, const std::vector<std::tuple<int, int, double>>& edges);
+	void FillModMatrix(int size, const std::vector<int>& sources, const std::vector<int>& destinations, const std::vector<double>& weights);
+	void FillModMatrix(int size, const std::vector<std::tuple<int, int, double>>& edges);
 
 private:
 	int m_size;

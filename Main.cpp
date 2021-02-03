@@ -52,17 +52,11 @@ int main(int argc, char** argv)
 	if (argc > 6)
 		fixed_split_step = atoi(argv[5]);
 
-	string fileName = argv[1];
+	string file_name = argv[1];
 	srand(time(0));
 
-	Graph graph(mod_resolution);
-	string ext = fileName.substr(fileName.rfind('.'), fileName.length() - fileName.rfind('.'));
-	if (ext == ".edgelist")
-		graph.ReadFromEdgelist(fileName);
-	else if (ext == ".net")
-		graph.ReadFromPajeck(fileName);
-	if (graph.Size() <= 0)
-	{
+	Graph graph = ReadGraphFromFile(file_name, mod_resolution);
+	if (graph.Size() <= 0) {
 		cerr << "Error: graph is empty" << endl;
 		return -1;
 	}
@@ -71,10 +65,10 @@ int main(int argc, char** argv)
 	ComboAlgorithm combo(num_split_attempts, fixed_split_step);
 	combo.Run(graph, max_communities);
 
-	//cout << fileName << " " << G.Modularity() << endl;
+	//cout << file_name << " " << G.Modularity() << endl;
 	//cout << "Elapsed time is " << (double(clock() - startTime)/CLOCKS_PER_SEC) << endl;
 
-	graph.PrintCommunity(fileName.substr(0, fileName.rfind('.')) + "_" + file_suffix + ".txt");
+	graph.PrintCommunity(file_name.substr(0, file_name.rfind('.')) + "_" + file_suffix + ".txt");
 	cout << graph.Modularity() << endl;
 	return 0;
 }
