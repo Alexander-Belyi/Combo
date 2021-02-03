@@ -21,14 +21,13 @@
 
 #include "Combo.h"
 #include "Graph.h"
-#include <ctime>
 #include <iostream>
 #include <string>
 using namespace std;
 
 int main(int argc, char** argv)
 {
-	int max_communities = 2e9;
+	int max_communities = -1;
 	string file_suffix = "comm_comboC++";
 	// Modularity Resolution Parameter
 	// as per Newman 2016 (https://journals.aps.org/pre/abstract/10.1103/PhysRevE.94.052315)
@@ -39,6 +38,7 @@ int main(int argc, char** argv)
 		cerr << "Error: provide path to edge list (.edgelist) or pajeck (.net) file" << endl;
 		return -1;
 	}
+	string file_name = argv[1];
 	if (argc > 2) {
 		if (string(argv[2]) != "INF")
 			max_communities = atoi(argv[2]);
@@ -51,23 +51,13 @@ int main(int argc, char** argv)
 		num_split_attempts = atoi(argv[5]);
 	if (argc > 6)
 		fixed_split_step = atoi(argv[5]);
-
-	string file_name = argv[1];
-	srand(time(0));
-
 	Graph graph = ReadGraphFromFile(file_name, mod_resolution);
 	if (graph.Size() <= 0) {
 		cerr << "Error: graph is empty" << endl;
 		return -1;
 	}
-
-	clock_t startTime = clock();
 	ComboAlgorithm combo(num_split_attempts, fixed_split_step);
 	combo.Run(graph, max_communities);
-
-	//cout << file_name << " " << G.Modularity() << endl;
-	//cout << "Elapsed time is " << (double(clock() - startTime)/CLOCKS_PER_SEC) << endl;
-
 	graph.PrintCommunity(file_name.substr(0, file_name.rfind('.')) + "_" + file_suffix + ".txt");
 	cout << graph.Modularity() << endl;
 	return 0;

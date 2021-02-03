@@ -279,6 +279,8 @@ void DeleteEmptyCommunities(Graph& graph, vector< vector<double> >& moves, vecto
 
 void ComboAlgorithm::Run(Graph& graph, int max_comunities)
 {
+	if (max_comunities <= 0)
+		max_comunities = graph.Size();
 	graph.CalcModMatrix();
 	graph.SetCommunities(vector<int>(graph.Size(), 0));
 	double currentMod = graph.Modularity();
