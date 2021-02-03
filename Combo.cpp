@@ -345,9 +345,9 @@ void ComboAlgorithm::SetNumberOfSplitAttempts(int split_tries)
 }
 
 ComboAlgorithm::ComboAlgorithm(long long random_seed, int num_split_attempts, int fixed_split_step) :
+	m_fixed_split_step(fixed_split_step),
 	m_random_number_generator(random_seed),
-	m_bernoulli_distribution(0.5),
-	m_fixed_split_step(fixed_split_step)
+	m_bernoulli_distribution(0.5)
 {
 	SetNumberOfSplitAttempts(num_split_attempts);
 }

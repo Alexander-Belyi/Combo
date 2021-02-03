@@ -2,7 +2,7 @@
 CXX  = g++
 LINK = $(CXX)
 #CXXFLAGS = -I -Wall -g -O0 -DDEBUG -std=c++17
-CXXFLAGS = -I -Wall -Wextra -O3 -funroll-loops -pipe -std=c++17
+CXXFLAGS = -I -Wall -Wextra -Wreorder -O3 -funroll-loops -pipe -std=c++17
 LFLAGS = -lm
 
 TARGET  = comboCPP
