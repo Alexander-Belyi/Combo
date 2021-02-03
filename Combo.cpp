@@ -241,7 +241,7 @@ void ComboAlgorithm::ReCalc(Graph& graph, vector< vector<double> >& moves, vecto
 			vector<int> to_be_moved(orig_comm_ind.size());
 			vector< vector<double> > Q = graph.GetModularitySubmatrix(orig_comm_ind);
 			moves[origin][destination] = Split(Q, correction_vector, to_be_moved);
-			for (int i = 0; i < to_be_moved.size(); ++i)
+			for (size_t i = 0; i < to_be_moved.size(); ++i)
 				splits_communities[destination][orig_comm_ind[i]] = to_be_moved[i];
 		}
 	}
@@ -250,8 +250,8 @@ void ComboAlgorithm::ReCalc(Graph& graph, vector< vector<double> >& moves, vecto
 double BestGain(const vector< vector<double> >& moves, int& origin, int& destination)
 {
 	double best_gain = -1;
-	for (int i = 0; i < moves.size(); ++i)
-		for (int j = 0; j < moves.size(); ++ j)
+	for (size_t i = 0; i < moves.size(); ++i)
+		for (size_t j = 0; j < moves.size(); ++ j)
 			if (best_gain < moves[i][j]) {
 				best_gain = moves[i][j];
 				origin = i;
@@ -267,7 +267,7 @@ void DeleteEmptyCommunities(Graph& graph, vector< vector<double> >& moves, vecto
 		for (int i = origin; i < comm_number; ++i)
 			moves[i] = moves[i+1];
 		moves[comm_number].assign(comm_number+2, 0);
-		for (int i = 0; i < moves.size(); ++i) {
+		for (size_t i = 0; i < moves.size(); ++i) {
 			for (int j = origin; j < comm_number+1; ++j)
 				moves[i][j] = moves[i][j+1];
 			moves[i][comm_number+1] = 0;
@@ -286,7 +286,7 @@ void ComboAlgorithm::Run(Graph& graph, int max_comunities)
 	//vectors of boolean meaning that corresponding vertex should be moved to dest
 	vector< vector<int> > splits_communities(2, vector<int>(graph.Size(), 0)); //best split vectors
 	m_current_best_gain = 1;
-	int origin, destination;
+	int origin = 0, destination = 0;
 	for (origin = 0; origin < graph.NumberOfCommunities(); ++ origin)
 		for (destination = 0; destination < graph.NumberOfCommunities() + (graph.NumberOfCommunities() < max_comunities); ++destination)
 			ReCalc(graph, moves, splits_communities, origin, destination);
@@ -301,8 +301,8 @@ void ComboAlgorithm::Run(Graph& graph, int max_comunities)
 				cerr << "ERROR" << endl;
 		}
 		if (comunity_added && destination < max_comunities - 1) {
-			if (destination >= moves.size() - 1) {
-				for (int i = 0; i < moves.size(); ++i)
+			if (destination + 1 >= int(moves.size())) {
+				for (size_t i = 0; i < moves.size(); ++i)
 					moves[i].push_back(0);
 				moves.push_back(vector<double>(moves.size() + 1, 0));
 				splits_communities.push_back(vector<int>(graph.Size(), 0));

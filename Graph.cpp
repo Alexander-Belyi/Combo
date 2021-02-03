@@ -62,7 +62,7 @@ void Graph::FillMatrix(const vector<int>& sources, const vector<int>& destinatio
 	// we expect vertices to be numbered starting from 0
 	m_size = 1 + max(*max_element(sources.begin(), sources.end()), *max_element(destinations.begin(), destinations.end()));
 	m_matrix.assign(m_size, vector<double>(m_size, 0));
-	for (int i = 0; i < sources.size(); ++i) {
+	for (size_t i = 0; i < sources.size(); ++i) {
 		m_matrix[sources[i]][destinations[i]] += weights[i];
 		if (!m_is_directed)
 			m_matrix[destinations[i]][sources[i]] += weights[i];
@@ -76,7 +76,7 @@ void Graph::FillModMatrix(const vector<int>& sources, const vector<int>& destina
 	m_modularity_matrix.assign(m_size, vector<double>(m_size, 0));
 	vector<double> sumQ2(m_size, 0.0);
 	vector<double> sumQ1(m_size, 0.0);
-	for (int i = 0; i < sources.size(); ++i) {
+	for (size_t i = 0; i < sources.size(); ++i) {
 		m_modularity_matrix[sources[i]][destinations[i]] += weights[i] / m_total_weight;
 		if (!m_is_directed)
 			m_modularity_matrix[destinations[i]][sources[i]] += weights[i] / m_total_weight;
@@ -128,7 +128,7 @@ void Graph::ReadFromEdgelist(const string& file_name)
 	file.close();
 	m_is_directed = true;
 	m_size = 1 + max_vertex_number - min_vertex_number;
-	for (int i = 0; i < sources.size(); ++i) {
+	for (size_t i = 0; i < sources.size(); ++i) {
 		sources[i] -= min_vertex_number;
 		destinations[i] -= min_vertex_number;
 	}
@@ -188,7 +188,7 @@ void Graph::ReadFromPajeck(const string& file_name)
 	}
 	file.close();
 	m_size = 1 + max_vertex_number - min_vertex_number;
-	for (int i = 0; i < sources.size(); ++i) {
+	for (size_t i = 0; i < sources.size(); ++i) {
 		sources[i] -= min_vertex_number;
 		destinations[i] -= min_vertex_number;
 	}
@@ -257,7 +257,7 @@ void Graph::PrintCommunity(const string& file_name) const
 
 void Graph::SetCommunities(const vector<int>& new_communities, int number)
 {
-	if (m_size != new_communities.size())
+	if (m_size != int(new_communities.size()))
 		return;
 	m_communities = new_communities;
 	if (number == -1)
@@ -269,8 +269,8 @@ void Graph::SetCommunities(const vector<int>& new_communities, int number)
 double Graph::Modularity() const
 {
 	double modularity = 0;
-	for (int i = 0; i < m_modularity_matrix.size(); ++i)
-		for (int j = 0; j < m_modularity_matrix.size(); ++j)
+	for (size_t i = 0; i < m_modularity_matrix.size(); ++i)
+		for (size_t j = 0; j < m_modularity_matrix.size(); ++j)
 			if (m_communities[i] == m_communities[j])
 				modularity += m_modularity_matrix[i][j];
 	return modularity;
@@ -322,8 +322,8 @@ vector<int> Graph::CommunityIndices(int community) const
 vector< vector<double> > Graph::GetModularitySubmatrix(const vector<int>& indices) const
 {
 	vector< vector<double> > res(indices.size(), vector<double>(indices.size()));
-	for (int i = 0; i < indices.size(); ++i)
-		for (int j = 0; j < indices.size(); ++j)
+	for (size_t i = 0; i < indices.size(); ++i)
+		for (size_t j = 0; j < indices.size(); ++j)
 			res[i][j] = m_modularity_matrix[indices[i]][indices[j]];
 	return res;
 }
@@ -331,8 +331,8 @@ vector< vector<double> > Graph::GetModularitySubmatrix(const vector<int>& indice
 vector<double> Graph::GetCorrectionVector(const vector<int>& orig_comm_ind, const vector<int>& dest_comm_ind) const
 {
 	vector<double> res(orig_comm_ind.size(), 0.0);
-	for (int i = 0; i < orig_comm_ind.size(); ++i)
-		for (int j = 0; j < dest_comm_ind.size(); ++j)
+	for (size_t i = 0; i < orig_comm_ind.size(); ++i)
+		for (size_t j = 0; j < dest_comm_ind.size(); ++j)
 			res[i] += m_modularity_matrix[dest_comm_ind[j]][orig_comm_ind[i]];
 	return res;
 }
