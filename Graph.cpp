@@ -145,17 +145,18 @@ Graph ReadFromPajek(const string& file_name, double mod_resolution)
 	return Graph(size, sources, destinations, weights, is_directed, mod_resolution);
 }
 
-Graph ReadGraphFromFile(const std::string& file_name, double mod_resolution)
+Graph ReadGraphFromFile(const string& file_name, double mod_resolution)
 {
-	string ext = file_name.substr(file_name.rfind('.'), file_name.length() - file_name.rfind('.'));
-	if (ext == ".edgelist")
-		return ReadFromEdgelist(file_name, mod_resolution);
-	else if (ext == ".net")
-		return ReadFromPajek(file_name, mod_resolution);
-	else {
-		cerr << "Error in ReadGraphFromFile: unsupported file format. Must be either Pajek .net or .edgelist" << endl;
-		return Graph();
+	size_t dot_position = file_name.rfind('.');
+	if (dot_position != string::npos) {
+		string ext = file_name.substr(file_name.rfind('.'), file_name.length() - file_name.rfind('.'));
+		if (ext == ".edgelist")
+			return ReadFromEdgelist(file_name, mod_resolution);
+		else if (ext == ".net")
+			return ReadFromPajek(file_name, mod_resolution);
 	}
+	cerr << "Error in ReadGraphFromFile: unsupported file format. Must be either Pajek .net or .edgelist" << endl;
+	return Graph();
 }
 
 void swap(Graph& left, Graph& right)
