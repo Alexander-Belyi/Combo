@@ -346,7 +346,8 @@ void ComboAlgorithm::SetNumberOfSplitAttempts(int split_tries)
 
 ComboAlgorithm::ComboAlgorithm(long long random_seed, int num_split_attempts, int fixed_split_step) :
 	m_fixed_split_step(fixed_split_step),
-	m_random_number_generator(random_seed),
+	m_random_number_generator(random_seed < 0 ? std::chrono::duration_cast<std::chrono::milliseconds>(
+		std::chrono::steady_clock::now().time_since_epoch()).count() : random_seed),
 	m_bernoulli_distribution(0.5)
 {
 	SetNumberOfSplitAttempts(num_split_attempts);
@@ -354,7 +355,7 @@ ComboAlgorithm::ComboAlgorithm(long long random_seed, int num_split_attempts, in
 
 ComboAlgorithm::ComboAlgorithm(): 
 	ComboAlgorithm(std::chrono::duration_cast<std::chrono::milliseconds>(
-		std::chrono::steady_clock::now().time_since_epoch()).count(), 0, 1)
+		std::chrono::steady_clock::now().time_since_epoch()).count(), 0, 0)
 {}
 
 ComboAlgorithm::ComboAlgorithm(int num_split_attempts, int fixed_split_step) :
