@@ -34,15 +34,14 @@ int main(int argc, char** argv)
 	double mod_resolution = 1.0;
 	int num_split_attempts = 0;
 	int fixed_split_step = 0;
+	bool treat_as_modularity = false;
 	if (argc < 2) {
 		cerr << "Error: provide path to edge list (.edgelist) or pajeck (.net) file" << endl;
 		return -1;
 	}
 	string file_name = argv[1];
-	if (argc > 2) {
-		if (string(argv[2]) != "INF")
-			max_communities = atoi(argv[2]);
-	}
+	if (argc > 2 && string(argv[2]) != "INF")
+		max_communities = atoi(argv[2]);
 	if (argc > 3) 
 		mod_resolution = atof(argv[3]);
 	if (argc > 4) 
@@ -51,7 +50,9 @@ int main(int argc, char** argv)
 		num_split_attempts = atoi(argv[5]);
 	if (argc > 6)
 		fixed_split_step = atoi(argv[5]);
-	Graph graph = ReadGraphFromFile(file_name, mod_resolution);
+	if (argc > 7)
+		treat_as_modularity = atoi(argv[6]);
+	Graph graph = ReadGraphFromFile(file_name, mod_resolution, treat_as_modularity);
 	if (graph.Size() <= 0) {
 		cerr << "Error: graph is empty" << endl;
 		return -1;
