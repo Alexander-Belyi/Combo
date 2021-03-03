@@ -262,32 +262,39 @@ double BestGain(const vector< vector<double> >& move_gains, int& origin, int& de
 	return best_gain;
 }
 
-void DeleteEmptyCommunities(Graph& graph, vector< vector<double> >& move_gains, vector< vector<int> >& splits_communities, int origin)
+bool DeleteCommunityIfEmpty(Graph& graph, vector< vector<double> >& move_gains, vector< vector<int> >& splits_communities, int origin)
 {
 	if (graph.DeleteCommunityIfEmpty(origin)) {
 		int comm_number = graph.NumberOfCommunities();
-		for (int i = origin; i < comm_number; ++i)
+		for (size_t i = origin; i+1 < move_gains.size(); ++i)
 			move_gains[i] = move_gains[i+1];
-		move_gains[comm_number].assign(comm_number+2, 0);
+		move_gains.back().assign(move_gains.back().size(), 0);
 		for (size_t i = 0; i < move_gains.size(); ++i) {
-			for (int j = origin; j < comm_number+1; ++j)
+			for (size_t j = origin; j+1 < move_gains[i].size(); ++j)
 				move_gains[i][j] = move_gains[i][j+1];
-			move_gains[i][comm_number+1] = 0;
+			move_gains[i].back() = 0;
 		}
-		for (int i = origin; i < comm_number+1; ++i)
+		for (size_t i = origin; i+1 < splits_communities.size(); ++i)
 			splits_communities[i] = splits_communities[i+1];
+		splits_communities.back().assign(splits_communities.back().size(), 0);
+		return true;
 	}
+	return false;
 }
 
-void ComboAlgorithm::Run(Graph& graph, int max_communities)
+void ComboAlgorithm::Run(Graph& graph, int max_communities, bool start_separate)
 {
 	if (max_communities <= 0)
 		max_communities = graph.Size();
-	graph.SetCommunities(vector<int>(graph.Size(), 0));
+	vector<int> initial_comm(graph.Size(), 0);
+	if(start_separate)
+		iota(initial_comm.begin(), initial_comm.end(), 0);
+	graph.SetCommunities(initial_comm);
 	double currentMod = graph.Modularity();
-	vector< vector<double> > move_gains(2, vector<double>(2, 0)); //results of splitting communities
-	//vectors of boolean meaning that corresponding vertex should be moved to dest
-	vector< vector<int> > splits_communities(2, vector<int>(graph.Size(), 0)); //best split vectors
+	vector< vector<double> > move_gains(graph.NumberOfCommunities(),
+		vector<double>(graph.NumberOfCommunities() + (graph.NumberOfCommunities() < max_communities), 0)); //results of splitting communities
+	//vectors of boolean meaning that corresponding vertex should be moved to that destination
+	vector< vector<int> > splits_communities(graph.NumberOfCommunities() + (graph.NumberOfCommunities() < max_communities), vector<int>(graph.Size(), 0)); //best split vectors
 	m_current_best_gain = 1;
 	int origin = 0, destination = 0;
 	for (origin = 0; origin < graph.NumberOfCommunities(); ++ origin)
@@ -297,33 +304,40 @@ void ComboAlgorithm::Run(Graph& graph, int max_communities)
 	while (m_current_best_gain > THRESHOLD) {
 		bool community_added = destination >= graph.NumberOfCommunities();
 		graph.PerformSplit(origin, destination, splits_communities[destination]);
+		bool origin_became_empty = DeleteCommunityIfEmpty(graph, move_gains, splits_communities, origin);
+		if (origin_became_empty) {
+			if (community_added)
+				cerr << "WARNING: moving ALL nodes to EMPTY community should not occur." << endl;
+			community_added = false;
+			if (origin < destination)
+				--destination;
+		}
 		if (m_debug_verify) {
 			double oldMod = currentMod;
 			currentMod = graph.Modularity();
 			if (fabs(currentMod - oldMod - m_current_best_gain) > THRESHOLD)
-				cerr << "ERROR" << endl;
+				cerr << "ERROR: modularity does not match." << endl;
 		}
 		if (community_added && destination < max_communities - 1) {
-			if (destination + 1 >= int(move_gains.size())) {
-				for (size_t i = 0; i < move_gains.size(); ++i)
-					move_gains[i].push_back(0);
-				move_gains.push_back(vector<double>(move_gains.size() + 1, 0));
+			if (destination >= int(move_gains.size())) {
+				for (auto& row : move_gains)
+					row.push_back(0);
+				move_gains.push_back(vector<double>(move_gains.back().size(), 0));
 				splits_communities.push_back(vector<int>(graph.Size(), 0));
 			}
-			for (int i = 0; i < destination; ++i) {
-				move_gains[i][destination+1] = move_gains[i][destination];
-				splits_communities[destination+1] = splits_communities[destination];
-			}
+			for (auto& row : move_gains)
+				row[destination+1] = row[destination];
+			splits_communities[destination+1] = splits_communities[destination];
 		}
 		for (int i = 0; i < graph.NumberOfCommunities() + (graph.NumberOfCommunities() < max_communities); ++i) {
-			ReCalc(graph, move_gains, splits_communities, origin, i);
+			if (!origin_became_empty)
+				ReCalc(graph, move_gains, splits_communities, origin, i);
 			ReCalc(graph, move_gains, splits_communities, destination, i);
-			if (i != destination && i < graph.NumberOfCommunities())
+			if (!origin_became_empty && i != destination && i < graph.NumberOfCommunities())
 				ReCalc(graph, move_gains, splits_communities, i, origin);
 			if (i != origin && i < graph.NumberOfCommunities())
 				ReCalc(graph, move_gains, splits_communities, i, destination);
 		}
-		DeleteEmptyCommunities(graph, move_gains, splits_communities, origin); //remove origin community if empty
 		m_current_best_gain = BestGain(move_gains, origin, destination);
 	}
 }
