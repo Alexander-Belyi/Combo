@@ -27,12 +27,13 @@
 #include <chrono>
 #include <cmath>
 #include <iostream>
+#include <limits>
 #include <optional>
 #include <random>
 using namespace std;
 
 #define THRESHOLD 1e-6
-
+const double INF = std::numeric_limits<double>::max();
 
 vector<double> Sum(const vector< vector<double> >& matrix)
 {
@@ -126,7 +127,7 @@ double PerformKernighansShift(const vector< vector<double> >& Q, const vector<do
 			else
 				gains[j] -= 4 * Q[gains_ind][j];
 		communities_new[gains_ind] = !communities_new[gains_ind];
-		gains[gains_ind] = gains[gains_ind] - 2*n;
+		gains[gains_ind] = -INF;
 	}
 	vector<double>::iterator it = max_element(gains_got.begin(), gains_got.end());
 	double mod_gain = *it;
