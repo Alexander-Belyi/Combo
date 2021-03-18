@@ -34,6 +34,7 @@ int main(int argc, char** argv)
 	double mod_resolution = 1.0;
 	int num_split_attempts = 0;
 	int fixed_split_step = 0;
+	bool start_separate = false;
 	bool treat_as_modularity = false;
 	if (argc < 2) {
 		cerr << "Error: provide path to edge list (.edgelist) or pajeck (.net) file" << endl;
@@ -51,14 +52,16 @@ int main(int argc, char** argv)
 	if (argc > 6)
 		fixed_split_step = atoi(argv[6]);
 	if (argc > 7)
-		treat_as_modularity = atoi(argv[7]);
+		start_separate = atoi(argv[7]);
+	if (argc > 8)
+		treat_as_modularity = atoi(argv[8]);
 	Graph graph = ReadGraphFromFile(file_name, mod_resolution, treat_as_modularity);
 	if (graph.Size() <= 0) {
 		cerr << "Error: graph is empty" << endl;
 		return -1;
 	}
 	ComboAlgorithm combo(num_split_attempts, fixed_split_step);
-	combo.Run(graph, max_communities);
+	combo.Run(graph, max_communities, start_separate);
 	graph.PrintCommunity(file_name.substr(0, file_name.rfind('.')) + "_" + file_suffix + ".txt");
 	cout << graph.Modularity() << endl;
 	return 0;
