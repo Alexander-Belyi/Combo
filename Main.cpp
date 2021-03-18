@@ -49,9 +49,9 @@ int main(int argc, char** argv)
 	if (argc > 5)
 		num_split_attempts = atoi(argv[5]);
 	if (argc > 6)
-		fixed_split_step = atoi(argv[5]);
+		fixed_split_step = atoi(argv[6]);
 	if (argc > 7)
-		treat_as_modularity = atoi(argv[6]);
+		treat_as_modularity = atoi(argv[7]);
 	Graph graph = ReadGraphFromFile(file_name, mod_resolution, treat_as_modularity);
 	if (graph.Size() <= 0) {
 		cerr << "Error: graph is empty" << endl;
