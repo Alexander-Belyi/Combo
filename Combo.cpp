@@ -308,16 +308,14 @@ void ComboAlgorithm::Run(Graph& graph, optional<size_t> max_communities, bool st
 			if (fabs(currentMod - oldMod - m_current_best_gain) > THRESHOLD)
 				cerr << "ERROR: modularity does not match." << endl;
 		}
-		if (community_added && destination + 1 < max_communities) {
-			if (destination >= move_gains.size()) {
+		if (community_added) {
+			if (destination + 1 < max_communities) {
 				for (auto& row : move_gains)
-					row.push_back(0);
-				move_gains.push_back(vector<double>(move_gains.back().size(), 0));
-				splits_communities.push_back(vector<bool>(graph.Size(), false));
+					row.push_back(row[destination]);
+				splits_communities.push_back(splits_communities[destination]);
 			}
-			for (auto& row : move_gains)
-				row[destination+1] = row[destination];
-			splits_communities[destination+1] = splits_communities[destination];
+			if (destination >= move_gains.size())
+				move_gains.push_back(vector<double>(move_gains.back().size(), 0));
 		}
 		for (size_t i = 0; i < graph.NumberOfCommunities() + (graph.NumberOfCommunities() < max_communities); ++i) {
 			if (!origin_became_empty)
