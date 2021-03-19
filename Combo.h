@@ -32,7 +32,7 @@ public:
     ComboAlgorithm();
     explicit ComboAlgorithm(std::optional<unsigned long long> random_seed, int num_split_attempts, int fixed_split_step);
     ComboAlgorithm(int num_split_attempts, int fixed_split_step);
-    void Run(Graph& graph, int max_comunities = -1, bool start_separate = false);
+    void Run(Graph& graph, std::optional<size_t> max_communities = std::nullopt, bool start_separate = false);
     void SetFixedSplitStep(int fixed_split_step) {m_fixed_split_step = fixed_split_step;}
     void SetNumberOfSplitAttempts(int split_tries);
 private:

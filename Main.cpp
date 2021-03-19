@@ -22,12 +22,13 @@
 #include "Combo.h"
 #include "Graph.h"
 #include <iostream>
+#include <optional>
 #include <string>
 using namespace std;
 
 int main(int argc, char** argv)
 {
-	int max_communities = -1;
+	optional<size_t> max_communities = std::nullopt;
 	string file_suffix = "comm_comboC++";
 	// Modularity Resolution Parameter
 	// as per Newman 2016 (https://journals.aps.org/pre/abstract/10.1103/PhysRevE.94.052315)

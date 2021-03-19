@@ -273,9 +273,9 @@ bool DeleteCommunityIfEmpty(Graph& graph, vector< vector<double> >& move_gains, 
 	return false;
 }
 
-void ComboAlgorithm::Run(Graph& graph, int max_communities, bool start_separate)
+void ComboAlgorithm::Run(Graph& graph, optional<size_t> max_communities, bool start_separate)
 {
-	if (max_communities <= 0)
+	if (!max_communities.has_value())
 		max_communities = graph.Size();
 	vector<int> initial_comm(graph.Size(), 0);
 	if(start_separate)
