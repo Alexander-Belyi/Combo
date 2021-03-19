@@ -28,6 +28,7 @@
 #include <cmath>
 #include <iostream>
 #include <limits>
+#include <numeric>
 #include <optional>
 #include <random>
 using namespace std;
