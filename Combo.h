@@ -50,7 +50,7 @@ private:
     std::bernoulli_distribution m_bernoulli_distribution;
     double m_current_best_gain;
     void ReCalc(Graph& graph, std::vector< std::vector<double> >& moves,
-        std::vector< std::vector<int> >& splits_communities, int origin, int destination);
+        std::vector< std::vector<bool> >& splits_communities, size_t origin, size_t destination);
     double Split(std::vector< std::vector<double> >& Q, const std::vector<double>& correction_vector, std::vector<int>& to_be_moved);
 };
 

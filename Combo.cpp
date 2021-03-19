@@ -54,8 +54,8 @@ vector<double> Sum(const vector< vector<double> >& matrix, bool (*Pred)(double) 
 template<typename T>
 bool TestAll(const vector<T>& vec, bool (*Pred)(T))
 {
-	int n = vec.size();
-	for (int i = 0; i < n; ++i)
+	size_t n = vec.size();
+	for (size_t i = 0; i < n; ++i)
 		if (!Pred(vec[i]))
 			return false;
 	return true;
@@ -63,17 +63,17 @@ bool TestAll(const vector<T>& vec, bool (*Pred)(T))
 
 double ModularityGain(const vector< vector<double> >& Q, const vector<double>& correction_vector, const vector<int>& community)
 {
-	int n = community.size();
+	size_t n = community.size();
 	double mod_gain = 0.0;
-	for (int i = 0; i < n; ++i) {
-		for (int j = 0; j < n; ++j)
+	for (size_t i = 0; i < n; ++i) {
+		for (size_t j = 0; j < n; ++j)
 			if (community[i] == community[j])
 				mod_gain += Q[i][j];
 			else
 				mod_gain -= Q[i][j];
 	}
 	mod_gain *= 0.5;
-	for (int i = 0; i < n; ++i) {
+	for (size_t i = 0; i < n; ++i) {
 		if (community[i])
 			mod_gain += correction_vector[i];
 		else
@@ -86,10 +86,10 @@ double ModularityGain(const vector< vector<double> >& Q, const vector<double>& c
 double PerformKernighansShift(const vector< vector<double> >& Q, const vector<double>& correction_vector,
 	const vector<int>& communities_old, vector<int>& communities_new)
 {
- 	int n = Q.size();
+ 	size_t n = Q.size();
 	vector<double> gains(n, 0.0);
-	for (int i = 0; i < n; ++i) {
-		for (int j = 0; j < n; ++j)
+	for (size_t i = 0; i < n; ++i) {
+		for (size_t j = 0; j < n; ++j)
 			if (i != j) {
 				if (communities_old[i] == communities_old[j])
 					gains[i] -= Q[i][j];
@@ -103,16 +103,16 @@ double PerformKernighansShift(const vector< vector<double> >& Q, const vector<do
 		gains[i] *= 2;
 	}
 	vector<double> gains_got(n, 0.0);
-	vector<int> gains_indexes(n, 0);
+	vector<size_t> gains_indexes(n, 0);
 	communities_new = communities_old;
-	for (int i = 0; i < n; ++i) {
+	for (size_t i = 0; i < n; ++i) {
 		vector<double>::iterator it = max_element(gains.begin(), gains.end());
 		gains_got[i] = *it;
-		int gains_ind = it - gains.begin();
+		size_t gains_ind = size_t(it - gains.begin());
 		gains_indexes[i] = gains_ind;
 		if (i > 0)
 			gains_got[i] = gains_got[i] + gains_got[i-1];
-		for (int j = 0; j < n; ++j)
+		for (size_t j = 0; j < n; ++j)
 			if (communities_new[gains_ind] == communities_new[j])
 				gains[j] += 4 * Q[gains_ind][j];
 			else
@@ -122,10 +122,10 @@ double PerformKernighansShift(const vector< vector<double> >& Q, const vector<do
 	}
 	vector<double>::iterator it = max_element(gains_got.begin(), gains_got.end());
 	double mod_gain = *it;
-	int steps_to_get_max_gain = it - gains_got.begin() + 1;
+	size_t steps_to_get_max_gain = size_t(it - gains_got.begin() + 1);
 	if (mod_gain > 0) {
 		communities_new = communities_old;
-		for (int i = 0; i < steps_to_get_max_gain; ++i)
+		for (size_t i = 0; i < steps_to_get_max_gain; ++i)
 			communities_new[gains_indexes[i]] = !communities_new[gains_indexes[i]];
 	} else {
 		communities_new = communities_old;
@@ -140,20 +140,20 @@ double ComboAlgorithm::Split(vector< vector<double> >& Q,
 {
 	double mod_gain = 0.0;
 	vector<double> sumQ = Sum(Q);
-	int n = Q.size();
-	for (int i = 0; i < n; ++i)
+	size_t n = Q.size();
+	for (size_t i = 0; i < n; ++i)
 		Q[i][i] += 2 * correction_vector[i] - sumQ[i]; //adjust the submatrix
 	int tries;
 	if (m_num_split_attempts > 0)
 		tries = m_num_split_attempts;
 	else
-		tries = pow(abs(log(m_current_best_gain)), m_autoC2) / m_autoC1 + 3;
+		tries = int(pow(abs(log(m_current_best_gain)), m_autoC2) / m_autoC1 + 3);
 	for (int tryI = 1; tryI <= tries; ++tryI)
 	{
 		vector<int> communities(n); // 0 - stay in origin, 1 - move to destination
 		//perform an initial simple split
 		if (m_fixed_split_step > 0 && tryI <= 6 * m_fixed_split_step && tryI % m_fixed_split_step == 0) {
-			//perform one of predifined split types
+			//perform one of predefined split types
 			int fixed_split_type = tryI / m_fixed_split_step;
 			if (fixed_split_type == 1 || fixed_split_type == 2)
 				communities.assign(n, 2 - fixed_split_type);
@@ -161,17 +161,17 @@ double ComboAlgorithm::Split(vector< vector<double> >& Q,
 				vector<double> sum_pos = Sum(Q, Positive);
 				size_t node_ind;
 				if (fixed_split_type == 3 || fixed_split_type == 4)
-					node_ind = max_element(sum_pos.begin(), sum_pos.end()) - sum_pos.begin();
+					node_ind = size_t(max_element(sum_pos.begin(), sum_pos.end()) - sum_pos.begin());
 				else
-					node_ind = min_element(sum_pos.begin(), sum_pos.end()) - sum_pos.begin();  
+					node_ind = size_t(min_element(sum_pos.begin(), sum_pos.end()) - sum_pos.begin());
 				communities.assign(n, -1);
 				int community = 1;
 				communities[node_ind] = community;
 				while (true) {
-					int next_node_ind = -1;
+					optional<size_t> next_node_ind;
 					double cur_min = 1e300;
 					double cur_max = -1e300;
-					for (int i = 0; i < n; ++i) {
+					for (size_t i = 0; i < n; ++i) {
 						if (communities[i] == -1) {
 							if ((fixed_split_type == 3 || fixed_split_type == 5) && Q[node_ind][i] < cur_min) {
 								next_node_ind = i;
@@ -182,16 +182,16 @@ double ComboAlgorithm::Split(vector< vector<double> >& Q,
 							}
 						}
 					}
-					if (next_node_ind == -1)
+					if (!next_node_ind.has_value())
 						break;
-					node_ind = next_node_ind;
+					node_ind = next_node_ind.value();
 					community ^= 1;
 					communities[node_ind] = community;
 				}
 			}
 		} else {
-			for (int i = 0; i < n; ++i)
-				communities[i] = int(m_bernoulli_distribution(m_random_number_generator));
+			for (size_t i = 0; i < n; ++i)
+				communities[i] = m_bernoulli_distribution(m_random_number_generator);
 		}
 
 		double mod_gain_total = ModularityGain(Q, correction_vector, communities);
@@ -224,11 +224,11 @@ double ComboAlgorithm::Split(vector< vector<double> >& Q,
 	return mod_gain;
 }
 
-void ComboAlgorithm::ReCalc(Graph& graph, vector< vector<double> >& move_gains, vector< vector<int> >& splits_communities, int origin, int destination)
+void ComboAlgorithm::ReCalc(Graph& graph, vector< vector<double> >& move_gains, vector< vector<bool> >& splits_communities, size_t origin, size_t destination)
 {
 	move_gains[origin][destination] = 0;
 	if (origin != destination) {
-		vector<int> orig_comm_ind = graph.CommunityIndices(origin);
+		vector<size_t> orig_comm_ind = graph.CommunityIndices(origin);
 		if (!orig_comm_ind.empty()) {
 			vector<double> correction_vector = graph.GetCorrectionVector(orig_comm_ind, graph.CommunityIndices(destination));
 			vector<int> to_be_moved(orig_comm_ind.size());
@@ -240,7 +240,7 @@ void ComboAlgorithm::ReCalc(Graph& graph, vector< vector<double> >& move_gains, 
 	}
 }
 
-double BestGain(const vector< vector<double> >& move_gains, int& origin, int& destination)
+double BestGain(const vector< vector<double> >& move_gains, size_t& origin, size_t& destination)
 {
 	double best_gain = -1;
 	for (size_t i = 0; i < move_gains.size(); ++i)
@@ -253,10 +253,9 @@ double BestGain(const vector< vector<double> >& move_gains, int& origin, int& de
 	return best_gain;
 }
 
-bool DeleteCommunityIfEmpty(Graph& graph, vector< vector<double> >& move_gains, vector< vector<int> >& splits_communities, int origin)
+bool DeleteCommunityIfEmpty(Graph& graph, vector< vector<double> >& move_gains, vector< vector<bool> >& splits_communities, size_t origin)
 {
 	if (graph.DeleteCommunityIfEmpty(origin)) {
-		int comm_number = graph.NumberOfCommunities();
 		for (size_t i = origin; i+1 < move_gains.size(); ++i)
 			move_gains[i] = move_gains[i+1];
 		move_gains.back().assign(move_gains.back().size(), 0);
@@ -267,7 +266,7 @@ bool DeleteCommunityIfEmpty(Graph& graph, vector< vector<double> >& move_gains, 
 		}
 		for (size_t i = origin; i+1 < splits_communities.size(); ++i)
 			splits_communities[i] = splits_communities[i+1];
-		splits_communities.back().assign(splits_communities.back().size(), 0);
+		splits_communities.back().assign(splits_communities.back().size(), false);
 		return true;
 	}
 	return false;
@@ -277,7 +276,7 @@ void ComboAlgorithm::Run(Graph& graph, optional<size_t> max_communities, bool st
 {
 	if (!max_communities.has_value())
 		max_communities = graph.Size();
-	vector<int> initial_comm(graph.Size(), 0);
+	vector<size_t> initial_comm(graph.Size(), 0);
 	if(start_separate)
 		iota(initial_comm.begin(), initial_comm.end(), 0);
 	graph.SetCommunities(initial_comm);
@@ -285,9 +284,9 @@ void ComboAlgorithm::Run(Graph& graph, optional<size_t> max_communities, bool st
 	vector< vector<double> > move_gains(graph.NumberOfCommunities(),
 		vector<double>(graph.NumberOfCommunities() + (graph.NumberOfCommunities() < max_communities), 0)); //results of splitting communities
 	//vectors of boolean meaning that corresponding vertex should be moved to that destination
-	vector< vector<int> > splits_communities(graph.NumberOfCommunities() + (graph.NumberOfCommunities() < max_communities), vector<int>(graph.Size(), 0)); //best split vectors
+	vector< vector<bool> > splits_communities(graph.NumberOfCommunities() + (graph.NumberOfCommunities() < max_communities), vector<bool>(graph.Size(), false)); //best split vectors
 	m_current_best_gain = 1;
-	int origin = 0, destination = 0;
+	size_t origin = 0, destination = 0;
 	for (origin = 0; origin < graph.NumberOfCommunities(); ++ origin)
 		for (destination = 0; destination < graph.NumberOfCommunities() + (graph.NumberOfCommunities() < max_communities); ++destination)
 			ReCalc(graph, move_gains, splits_communities, origin, destination);
@@ -309,18 +308,18 @@ void ComboAlgorithm::Run(Graph& graph, optional<size_t> max_communities, bool st
 			if (fabs(currentMod - oldMod - m_current_best_gain) > THRESHOLD)
 				cerr << "ERROR: modularity does not match." << endl;
 		}
-		if (community_added && destination < max_communities - 1) {
-			if (destination >= int(move_gains.size())) {
+		if (community_added && destination + 1 < max_communities) {
+			if (destination >= move_gains.size()) {
 				for (auto& row : move_gains)
 					row.push_back(0);
 				move_gains.push_back(vector<double>(move_gains.back().size(), 0));
-				splits_communities.push_back(vector<int>(graph.Size(), 0));
+				splits_communities.push_back(vector<bool>(graph.Size(), false));
 			}
 			for (auto& row : move_gains)
 				row[destination+1] = row[destination];
 			splits_communities[destination+1] = splits_communities[destination];
 		}
-		for (int i = 0; i < graph.NumberOfCommunities() + (graph.NumberOfCommunities() < max_communities); ++i) {
+		for (size_t i = 0; i < graph.NumberOfCommunities() + (graph.NumberOfCommunities() < max_communities); ++i) {
 			if (!origin_became_empty)
 				ReCalc(graph, move_gains, splits_communities, origin, i);
 			ReCalc(graph, move_gains, splits_communities, destination, i);
@@ -353,19 +352,19 @@ void ComboAlgorithm::SetNumberOfSplitAttempts(int split_tries)
 ComboAlgorithm::ComboAlgorithm(optional<unsigned long long> random_seed, int num_split_attempts, int fixed_split_step) :
 	m_fixed_split_step(fixed_split_step),
 	m_random_number_generator(random_seed.has_value() ? random_seed.value() :
-		std::chrono::duration_cast<std::chrono::milliseconds>(
-			std::chrono::steady_clock::now().time_since_epoch()).count()),
+		static_cast<unsigned long long>(std::chrono::duration_cast<std::chrono::microseconds>(
+			std::chrono::steady_clock::now().time_since_epoch()).count())),
 	m_bernoulli_distribution(0.5)
 {
 	SetNumberOfSplitAttempts(num_split_attempts);
 }
 
 ComboAlgorithm::ComboAlgorithm(): 
-	ComboAlgorithm(std::chrono::duration_cast<std::chrono::milliseconds>(
+	ComboAlgorithm(std::chrono::duration_cast<std::chrono::microseconds>(
 		std::chrono::steady_clock::now().time_since_epoch()).count(), 0, 0)
 {}
 
 ComboAlgorithm::ComboAlgorithm(int num_split_attempts, int fixed_split_step) :
-	ComboAlgorithm(std::chrono::duration_cast<std::chrono::milliseconds>(
+	ComboAlgorithm(std::chrono::duration_cast<std::chrono::microseconds>(
 		std::chrono::steady_clock::now().time_since_epoch()).count(), num_split_attempts, fixed_split_step)
 {}
