@@ -35,27 +35,17 @@ using namespace std;
 #define THRESHOLD 1e-6
 const double INF = std::numeric_limits<double>::max();
 
-vector<double> Sum(const vector< vector<double> >& matrix)
-{
-	int n = matrix.size();
-	vector<double> res(n, 0.0);
-	for (int i = 0; i < n; ++i)
-		for (int j = 0; j < n; ++j)
-			res[i] += matrix[i][j];
-	return res;
-}
-
 template<typename T> bool Positive(T x) {return x > 0.0;}
 template<typename T> bool Negative(T x) {return x < 0.0;}
 template<typename T> bool NotNegative(T x) {return x >= 0.0;}
 template<typename T> bool NotPositive(T x) {return x <= 0.0;}
-vector<double> SumPos(const vector< vector<double> >& matrix, bool (*Pred)(double) = NULL)
+vector<double> Sum(const vector< vector<double> >& matrix, bool (*Pred)(double) = nullptr)
 {
-	int n = matrix.size();
+	size_t n = matrix.size();
 	vector<double> res(n, 0.0);
-	for (int i = 0; i < n; ++i)
-		for (int j = 0; j < n; ++j)
-			if (Pred && Pred(matrix[i][j]))
+	for (size_t i = 0; i < n; ++i)
+		for (size_t j = 0; j < n; ++j)
+			if (!Pred || Pred(matrix[i][j]))
 				res[i] += matrix[i][j];
 	return res;
 }
@@ -167,8 +157,8 @@ double ComboAlgorithm::Split(vector< vector<double> >& Q,
 			if (fixed_split_type == 1 || fixed_split_type == 2)
 				communities.assign(n, 2 - fixed_split_type);
 			else {
-				vector<double> sum_pos = SumPos(Q, Positive);
-				int node_ind;
+				vector<double> sum_pos = Sum(Q, Positive);
+				size_t node_ind;
 				if (fixed_split_type == 3 || fixed_split_type == 4)
 					node_ind = max_element(sum_pos.begin(), sum_pos.end()) - sum_pos.begin();
 				else
