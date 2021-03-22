@@ -22,6 +22,7 @@
 #include "Graph.h"
 
 #include <algorithm>
+#include <climits>
 #include <fstream>
 #include <iostream>
 #include <locale>
@@ -54,7 +55,7 @@ Graph ReadFromEdgelist(const string& file_name, double mod_resolution, bool trea
     }
 	vector<int> sources, destinations;
 	vector<double> weights;
-	int min_vertex_number = 2e9;
+	int min_vertex_number = INT_MAX;
 	int max_vertex_number = 0;
 	while (file.good()) {
 		string line;
@@ -94,7 +95,7 @@ Graph ReadFromPajek(const string& file_name, double mod_resolution, bool treat_a
     std::locale locale;
 	vector<int> sources, destinations;
 	vector<double> weights;
-	int min_vertex_number = 2e9;
+	int min_vertex_number = INT_MAX;
 	int max_vertex_number = 0;
 	bool is_directed = false;
 	bool skip = true;

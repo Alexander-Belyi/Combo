@@ -26,6 +26,7 @@
 #include <algorithm>
 #include <chrono>
 #include <cmath>
+#include <cstdint>
 #include <iostream>
 #include <limits>
 #include <numeric>
@@ -347,10 +348,10 @@ void ComboAlgorithm::SetNumberOfSplitAttempts(int split_tries)
 	m_num_split_attempts = split_tries;
 }
 
-ComboAlgorithm::ComboAlgorithm(optional<unsigned long long> random_seed, int num_split_attempts, int fixed_split_step) :
+ComboAlgorithm::ComboAlgorithm(optional<uint_fast32_t> random_seed, int num_split_attempts, int fixed_split_step) :
 	m_fixed_split_step(fixed_split_step),
 	m_random_number_generator(random_seed.has_value() ? random_seed.value() :
-		static_cast<unsigned long long>(std::chrono::duration_cast<std::chrono::microseconds>(
+		static_cast<uint_fast32_t>(std::chrono::duration_cast<std::chrono::microseconds>(
 			std::chrono::steady_clock::now().time_since_epoch()).count())),
 	m_bernoulli_distribution(0.5)
 {
@@ -358,11 +359,11 @@ ComboAlgorithm::ComboAlgorithm(optional<unsigned long long> random_seed, int num
 }
 
 ComboAlgorithm::ComboAlgorithm(): 
-	ComboAlgorithm(std::chrono::duration_cast<std::chrono::microseconds>(
-		std::chrono::steady_clock::now().time_since_epoch()).count(), 0, 0)
+	ComboAlgorithm(static_cast<uint_fast32_t>(std::chrono::duration_cast<std::chrono::microseconds>(
+		std::chrono::steady_clock::now().time_since_epoch()).count()), 0, 0)
 {}
 
 ComboAlgorithm::ComboAlgorithm(int num_split_attempts, int fixed_split_step) :
-	ComboAlgorithm(std::chrono::duration_cast<std::chrono::microseconds>(
-		std::chrono::steady_clock::now().time_since_epoch()).count(), num_split_attempts, fixed_split_step)
+	ComboAlgorithm(static_cast<uint_fast32_t>(std::chrono::duration_cast<std::chrono::microseconds>(
+		std::chrono::steady_clock::now().time_since_epoch()).count()), num_split_attempts, fixed_split_step)
 {}
