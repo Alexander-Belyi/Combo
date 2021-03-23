@@ -2,12 +2,12 @@
 
 ## Updates
 
-1. Adde support for `.csv` files containing adjacency matrix.
-2. Added `treat_as_modularity` flag to indicate that we should not calculate modularity matrix and use received edge weights instead. This allows users to use __Combo__ to solve general _clique partitioning problem_.
+1. Added new parameters to track progress.
+2. Adde support for `.csv` files containing adjacency matrix.
+3. Added `treat_as_modularity` flag to indicate that we should not calculate modularity matrix and use received edge weights instead. This allows users to use __Combo__ to solve general _clique partitioning problem_.
+Combining this option with reading a matrix from csv allows to apply __Combo__ to any custom _modularity_ matrix.
 
-Combining these two options allows to apply __Combo__ to any custom 'modularity' matrix.
-
-3. We have a python wrapper around this code available here: [pyCombo](https://github.com/Casyfill/pyCombo).
+4. We have a python wrapper around this code available here: [pyCombo](https://github.com/Casyfill/pyCombo).
 
 ## Description
 
