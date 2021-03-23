@@ -32,7 +32,7 @@ make
 Once compiled, you can run the program with (parameters' order matters):
 
 ```
-./comboCPP path_to_network_file.net [max_number_of_communities] [mod_resolution] [file_suffix] [num_split_attempts] [fixed_split_step] [treat_as_modularity]
+./comboCPP path_to_network_file.net [max_number_of_communities] [mod_resolution] [file_suffix] [num_split_attempts] [fixed_split_step] [start_separate] [treat_as_modularity] [info_output_level] [intermediate_results_file_name]
 ```
 
 The options are as follows:
@@ -43,7 +43,10 @@ The options are as follows:
 * `file_suffix` - suffix appended to output file (default is "comm_comboC++")
 * `num_split_attempts` - number of attempts to split each community on every iteration (default is 0 meaning this number will be selected automatically on each iteration)
 * `fixed_split_step` - number of steps between trying to apply each of 6 predefined splits (default is 1 - first 6 split attempts will be of predefined types, use 0 to use only random splits)
-* `treat_as_modularity` - 0 or 1 (default is 0) indicating that edge weights will be treated as modularity scores
+* `start_separate` - 0 or 1 (default is 0), indicating if Combo should start from assigning each node into its own separate community. This can help to achieve higher modularity, but makes running time much longer for large networks
+* `treat_as_modularity` - 0 or 1 (default is 0), indicating that edge weights will be treated as modularity scores
+* `info_output_level` - 0 (default) or higher, indicating how much progress info should be printed out
+* `intermediate_results_file_name` - path to the file where intermediate community assignment will be saved, if empty (default) no intermediate results will be saved.
 
 For example, you can make sure the compilation worked correctly by running:
 ```

@@ -28,7 +28,7 @@ using namespace std;
 
 int main(int argc, char** argv)
 {
-	optional<size_t> max_communities = std::nullopt;
+	optional<size_t> max_communities = nullopt;
 	string file_suffix = "comm_comboC++";
 	// Modularity Resolution Parameter
 	// as per Newman 2016 (https://journals.aps.org/pre/abstract/10.1103/PhysRevE.94.052315)
@@ -37,6 +37,8 @@ int main(int argc, char** argv)
 	int fixed_split_step = 0;
 	bool start_separate = false;
 	bool treat_as_modularity = false;
+	int info_output_level = 0;
+	optional<string> intermediate_results_file_name = nullopt;
 	if (argc < 2) {
 		cerr << "Error: provide path to edge list (.edgelist) or pajeck (.net) file" << endl;
 		return -1;
@@ -56,13 +58,17 @@ int main(int argc, char** argv)
 		start_separate = atoi(argv[7]);
 	if (argc > 8)
 		treat_as_modularity = atoi(argv[8]);
+	if (argc > 9)
+		info_output_level = atoi(argv[9]);
+	if (argc > 10)
+		intermediate_results_file_name = argv[10];
 	Graph graph = ReadGraphFromFile(file_name, mod_resolution, treat_as_modularity);
 	if (graph.Size() <= 0) {
 		cerr << "Error: graph is empty" << endl;
 		return -1;
 	}
-	ComboAlgorithm combo(num_split_attempts, fixed_split_step);
-	combo.Run(graph, max_communities, start_separate);
+	ComboAlgorithm combo(nullopt, num_split_attempts, fixed_split_step, info_output_level);
+	combo.Run(graph, max_communities, start_separate, intermediate_results_file_name);
 	graph.PrintCommunity(file_name.substr(0, file_name.rfind('.')) + "_" + file_suffix + ".txt");
 	cout << graph.Modularity() << endl;
 	return 0;

@@ -26,16 +26,18 @@
 #include <cstdint>
 #include <optional>
 #include <random>
+#include <string>
 #include <vector>
 
 class ComboAlgorithm {
 public:
-    ComboAlgorithm();
-    explicit ComboAlgorithm(std::optional<uint_fast32_t> random_seed, int num_split_attempts, int fixed_split_step);
-    ComboAlgorithm(int num_split_attempts, int fixed_split_step);
-    void Run(Graph& graph, std::optional<size_t> max_communities = std::nullopt, bool start_separate = false);
+    explicit ComboAlgorithm(std::optional<uint_fast32_t> random_seed = std::nullopt,
+        int num_split_attempts = 0, int fixed_split_step = 0, int output_info_level = 0);
+    void Run(Graph& graph, std::optional<size_t> max_communities = std::nullopt, bool start_separate = false,
+        std::optional<std::string> intermediate_result_file_name = std::nullopt);
     void SetFixedSplitStep(int fixed_split_step) {m_fixed_split_step = fixed_split_step;}
     void SetNumberOfSplitAttempts(int split_tries);
+    void SetOutputInfoLevel(int output_info_level) {m_output_info_level = output_info_level;}
 private:
     //settings
     const bool m_debug_verify = false;
@@ -44,9 +46,11 @@ private:
     // step number to apply predefined split; 0 - use only random splits
     // if >0 sets up the usage of 6 fixed type splits on every m_fixed_split_step
     int m_fixed_split_step;
+    int m_output_info_level;
+    
+    //implementation
     double m_autoC1;
     double m_autoC2;
-    //implementation
     std::mt19937 m_random_number_generator;
     std::bernoulli_distribution m_bernoulli_distribution;
     double m_current_best_gain;

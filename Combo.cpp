@@ -273,7 +273,8 @@ bool DeleteCommunityIfEmpty(Graph& graph, vector< vector<double> >& move_gains, 
 	return false;
 }
 
-void ComboAlgorithm::Run(Graph& graph, optional<size_t> max_communities, bool start_separate)
+void ComboAlgorithm::Run(Graph& graph, optional<size_t> max_communities, bool start_separate,
+	optional<string> intermediate_result_file_name)
 {
 	if (!max_communities.has_value())
 		max_communities = graph.Size();
@@ -282,6 +283,10 @@ void ComboAlgorithm::Run(Graph& graph, optional<size_t> max_communities, bool st
 		iota(initial_comm.begin(), initial_comm.end(), 0);
 	graph.SetCommunities(initial_comm);
 	double currentMod = graph.Modularity();
+	if (m_output_info_level > 0) {
+		cout << "0. " << graph.NumberOfCommunities() << " communities, "
+			<< "initial modularity = " << currentMod << endl;
+	}
 	vector< vector<double> > move_gains(graph.NumberOfCommunities(),
 		vector<double>(graph.NumberOfCommunities() + (graph.NumberOfCommunities() < max_communities), 0)); //results of splitting communities
 	//vectors of boolean meaning that corresponding vertex should be moved to that destination
@@ -292,7 +297,9 @@ void ComboAlgorithm::Run(Graph& graph, optional<size_t> max_communities, bool st
 		for (destination = 0; destination < graph.NumberOfCommunities() + (graph.NumberOfCommunities() < max_communities); ++destination)
 			ReCalc(graph, move_gains, splits_communities, origin, destination);
 	m_current_best_gain = BestGain(move_gains, origin, destination);
+	int iteration = 0;
 	while (m_current_best_gain > THRESHOLD) {
+		++iteration;
 		bool community_added = destination >= graph.NumberOfCommunities();
 		graph.PerformSplit(origin, destination, splits_communities[destination]);
 		bool origin_became_empty = DeleteCommunityIfEmpty(graph, move_gains, splits_communities, origin);
@@ -302,6 +309,13 @@ void ComboAlgorithm::Run(Graph& graph, optional<size_t> max_communities, bool st
 			community_added = false;
 			if (origin < destination)
 				--destination;
+		}
+		if (m_output_info_level > 0) {
+			cout << iteration << ". " << graph.NumberOfCommunities() << " communities, "
+				<< "modularity = " << graph.Modularity() << ", last modularity gain = " << m_current_best_gain << endl;
+		}
+		if (intermediate_result_file_name.has_value() && intermediate_result_file_name.value() != "") {
+			graph.PrintCommunity(intermediate_result_file_name.value());
 		}
 		if (m_debug_verify) {
 			double oldMod = currentMod;
@@ -329,6 +343,10 @@ void ComboAlgorithm::Run(Graph& graph, optional<size_t> max_communities, bool st
 		}
 		m_current_best_gain = BestGain(move_gains, origin, destination);
 	}
+	if (m_output_info_level > 0) {
+		cout << "Finished with " << graph.NumberOfCommunities() << " communities, "
+			<< "achieved modularity = " << graph.Modularity() << endl;
+	}
 }
 
 void ComboAlgorithm::SetNumberOfSplitAttempts(int split_tries)
@@ -348,8 +366,9 @@ void ComboAlgorithm::SetNumberOfSplitAttempts(int split_tries)
 	m_num_split_attempts = split_tries;
 }
 
-ComboAlgorithm::ComboAlgorithm(optional<uint_fast32_t> random_seed, int num_split_attempts, int fixed_split_step) :
+ComboAlgorithm::ComboAlgorithm(optional<uint_fast32_t> random_seed, int num_split_attempts, int fixed_split_step, int output_info_level) :
 	m_fixed_split_step(fixed_split_step),
+	m_output_info_level(output_info_level),
 	m_random_number_generator(random_seed.has_value() ? random_seed.value() :
 		static_cast<uint_fast32_t>(std::chrono::duration_cast<std::chrono::microseconds>(
 			std::chrono::steady_clock::now().time_since_epoch()).count())),
@@ -357,13 +376,3 @@ ComboAlgorithm::ComboAlgorithm(optional<uint_fast32_t> random_seed, int num_spli
 {
 	SetNumberOfSplitAttempts(num_split_attempts);
 }
-
-ComboAlgorithm::ComboAlgorithm(): 
-	ComboAlgorithm(static_cast<uint_fast32_t>(std::chrono::duration_cast<std::chrono::microseconds>(
-		std::chrono::steady_clock::now().time_since_epoch()).count()), 0, 0)
-{}
-
-ComboAlgorithm::ComboAlgorithm(int num_split_attempts, int fixed_split_step) :
-	ComboAlgorithm(static_cast<uint_fast32_t>(std::chrono::duration_cast<std::chrono::microseconds>(
-		std::chrono::steady_clock::now().time_since_epoch()).count()), num_split_attempts, fixed_split_step)
-{}
