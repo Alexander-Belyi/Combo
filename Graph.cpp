@@ -502,14 +502,21 @@ void Graph::Print() const
 
 void Graph::PrintCommunity(const string& file_name) const
 {
-	ofstream file(file_name.c_str());
-	if (!file.is_open()) {
-        cerr << "File " << file_name << " can not be opened." << endl;
-		return;
+    if (file_name.empty()) {
+        cout << "Nodes\' communities:\n";
+        for (size_t i = 0; i < Size(); ++i)
+		    cout << m_communities[i] + 1 << ' ';
+        cout << endl;
+    } else {
+        ofstream file(file_name.c_str());
+        if (!file.is_open()) {
+            cerr << "File " << file_name << " can not be opened." << endl;
+            return;
+        }
+        for (size_t i = 0; i < Size(); ++i)
+            file << m_communities[i] << endl;
+        file.close();
     }
-	for (size_t i = 0; i < Size(); ++i)
-		file << m_communities[i] << endl;
-	file.close();
 }
 
 void Graph::SetCommunities(const vector<size_t>& new_communities, size_t number)
@@ -580,11 +587,7 @@ vector<size_t> Graph::CommunityIndices(size_t community) const
 
 vector< vector<double> > Graph::GetModularitySubmatrix(const vector<size_t>& indices) const
 {
-	vector< vector<double> > res(indices.size(), vector<double>(indices.size()));
-	for (size_t i = 0; i < indices.size(); ++i)
-		for (size_t j = 0; j < indices.size(); ++j)
-			res[i][j] = m_modularity_matrix[indices[i]][indices[j]];
-	return res;
+    return Submatrix(m_modularity_matrix, indices);
 }
 
 vector<double> Graph::GetCorrectionVector(const vector<size_t>& orig_comm_ind, const vector<size_t>& dest_comm_ind) const

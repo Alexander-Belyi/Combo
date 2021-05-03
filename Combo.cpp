@@ -22,6 +22,7 @@
 
 #include "Combo.h"
 #include "Graph.h"
+#include "Matrix.h"
 
 #include <algorithm>
 #include <chrono>
@@ -32,37 +33,11 @@
 #include <numeric>
 #include <optional>
 #include <random>
+#include <vector>
 using namespace std;
 
-#define THRESHOLD 1e-6
-const double INF = std::numeric_limits<double>::max();
 
-template<typename T> bool Positive(T x) {return x > 0.0;}
-template<typename T> bool Negative(T x) {return x < 0.0;}
-template<typename T> bool NotNegative(T x) {return x >= 0.0;}
-template<typename T> bool NotPositive(T x) {return x <= 0.0;}
-vector<double> Sum(const vector< vector<double> >& matrix, bool (*Pred)(double) = nullptr)
-{
-	size_t n = matrix.size();
-	vector<double> res(n, 0.0);
-	for (size_t i = 0; i < n; ++i)
-		for (size_t j = 0; j < n; ++j)
-			if (!Pred || Pred(matrix[i][j]))
-				res[i] += matrix[i][j];
-	return res;
-}
-
-template<typename T>
-bool TestAll(const vector<T>& vec, bool (*Pred)(T))
-{
-	size_t n = vec.size();
-	for (size_t i = 0; i < n; ++i)
-		if (!Pred(vec[i]))
-			return false;
-	return true;
-}
-
-double ModularityGain(const vector< vector<double> >& Q, const vector<double>& correction_vector, const vector<int>& community)
+double ModularityGain(const Matrix& Q, const vector<double>& correction_vector, const vector<int>& community)
 {
 	size_t n = community.size();
 	double mod_gain = 0.0;
@@ -84,7 +59,7 @@ double ModularityGain(const vector< vector<double> >& Q, const vector<double>& c
 }
 
 //perform a split improvement using a Kernighan-Lin-style iterative shifts series
-double PerformKernighansShift(const vector< vector<double> >& Q, const vector<double>& correction_vector,
+double PerformKernighansShift(const Matrix& Q, const vector<double>& correction_vector,
 	const vector<int>& communities_old, vector<int>& communities_new)
 {
  	size_t n = Q.size();
@@ -136,11 +111,11 @@ double PerformKernighansShift(const vector< vector<double> >& Q, const vector<do
 }
 
 //try to split the subnetwork with respect to the correction vector
-double ComboAlgorithm::Split(vector< vector<double> >& Q,
+double ComboAlgorithm::Split(Matrix& Q,
 	const vector<double>& correction_vector, vector<int>& to_be_moved)
 {
 	double mod_gain = 0.0;
-	vector<double> sumQ = Sum(Q);
+	vector<double> sumQ = Sum(Q, 1);
 	size_t n = Q.size();
 	for (size_t i = 0; i < n; ++i)
 		Q[i][i] += 2 * correction_vector[i] - sumQ[i]; //adjust the submatrix
@@ -149,8 +124,7 @@ double ComboAlgorithm::Split(vector< vector<double> >& Q,
 		tries = m_num_split_attempts;
 	else
 		tries = int(pow(abs(log(m_current_best_gain)), m_autoC2) / m_autoC1 + 3);
-	for (int tryI = 1; tryI <= tries; ++tryI)
-	{
+	for (int tryI = 1; tryI <= tries; ++tryI) {
 		vector<int> communities(n); // 0 - stay in origin, 1 - move to destination
 		//perform an initial simple split
 		if (m_fixed_split_step > 0 && tryI <= 6 * m_fixed_split_step && tryI % m_fixed_split_step == 0) {
@@ -159,7 +133,7 @@ double ComboAlgorithm::Split(vector< vector<double> >& Q,
 			if (fixed_split_type == 1 || fixed_split_type == 2)
 				communities.assign(n, 2 - fixed_split_type);
 			else {
-				vector<double> sum_pos = Sum(Q, Positive);
+				vector<double> sum_pos = Sum(Q, 1, Positive);
 				size_t node_ind;
 				if (fixed_split_type == 3 || fixed_split_type == 4)
 					node_ind = size_t(max_element(sum_pos.begin(), sum_pos.end()) - sum_pos.begin());
@@ -194,7 +168,6 @@ double ComboAlgorithm::Split(vector< vector<double> >& Q,
 			for (size_t i = 0; i < n; ++i)
 				communities[i] = m_bernoulli_distribution(m_random_number_generator);
 		}
-
 		double mod_gain_total = ModularityGain(Q, correction_vector, communities);
 		double mod_gain_from_shift = 1;
 		while (mod_gain_from_shift > THRESHOLD) {
@@ -208,7 +181,6 @@ double ComboAlgorithm::Split(vector< vector<double> >& Q,
 					if (fabs(mod_gain_verify - mod_gain_total) > THRESHOLD)
 						cerr << "ERROR" << endl;
 				}
-
 			}
 		}
 		if (mod_gain < mod_gain_total) {
@@ -218,10 +190,8 @@ double ComboAlgorithm::Split(vector< vector<double> >& Q,
 		if (mod_gain <= 1e-6)
 			tries = int(tries / 2);
 	}
-
 	if (fabs(mod_gain) < THRESHOLD)
 		to_be_moved.assign(n, 1);
-
 	return mod_gain;
 }
 
@@ -233,7 +203,7 @@ void ComboAlgorithm::ReCalc(Graph& graph, vector< vector<double> >& move_gains, 
 		if (!orig_comm_ind.empty()) {
 			vector<double> correction_vector = graph.GetCorrectionVector(orig_comm_ind, graph.CommunityIndices(destination));
 			vector<int> to_be_moved(orig_comm_ind.size());
-			vector< vector<double> > Q = graph.GetModularitySubmatrix(orig_comm_ind);
+			Matrix Q = graph.GetModularitySubmatrix(orig_comm_ind);
 			move_gains[origin][destination] = Split(Q, correction_vector, to_be_moved);
 			for (size_t i = 0; i < to_be_moved.size(); ++i)
 				splits_communities[destination][orig_comm_ind[i]] = to_be_moved[i];

@@ -47,7 +47,7 @@ private:
     // if >0 sets up the usage of 6 fixed type splits on every m_fixed_split_step
     int m_fixed_split_step;
     int m_output_info_level;
-    
+
     //implementation
     double m_autoC1;
     double m_autoC2;

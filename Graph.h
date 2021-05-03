@@ -22,6 +22,8 @@
 #ifndef GRAPH_H
 #define GRAPH_H
 
+#include "Matrix.h"
+
 #include <string>
 #include <tuple>
 #include <vector>
@@ -52,29 +54,30 @@ public:
 	size_t NumberOfCommunities() const {return m_number_of_communities;}
 
 	double Modularity() const;
-	std::vector< std::vector<double> > GetModularitySubmatrix(const std::vector<size_t>& indices) const;
+	Matrix GetModularityMatrix() const {return m_modularity_matrix;}
+	Matrix GetModularitySubmatrix(const std::vector<size_t>& indices) const;
 	std::vector<double> GetCorrectionVector(const std::vector<size_t>& orig_comm_ind, const std::vector<size_t>& dest_comm_ind) const;
 	
 	void SetCommunities(const std::vector<size_t>& new_communities, size_t number = 0);
-	std::vector<size_t> Communities() const {return m_communities;};
+	std::vector<size_t> Communities() const {return m_communities;}
 	std::vector<size_t> CommunityIndices(size_t comm) const;
 	bool IsCommunityEmpty(size_t community) const;
 
 	void PerformSplit(size_t origin, size_t destination, const std::vector<bool>& split_communities);
 	bool DeleteCommunityIfEmpty(size_t community);
 	void Print() const;
-	void PrintCommunity(const std::string& file_name) const;
+	void PrintCommunity(const std::string& file_name = "") const;
 
 	friend void swap(Graph& left, Graph& right);
 
-private:
+protected:
 	void CalcModMatrix(size_t size, const std::vector<int>& sources, const std::vector<int>& destinations, const std::vector<double>& weights);
 	void FillModMatrix(size_t size, const std::vector<int>& sources, const std::vector<int>& destinations, const std::vector<double>& weights);
 	void CalcModMatrix(size_t size, const std::vector<std::tuple<int, int, double>>& edges);
 	void FillModMatrix(size_t size, const std::vector<std::tuple<int, int, double>>& edges);
-	void CalcModMatrix(const std::vector<std::vector<double>>& matrix);
-	void FillModMatrix(const std::vector<std::vector<double>>& matrix);
-	void FillModMatrix(std::vector<std::vector<double>>&& matrix);
+	void CalcModMatrix(const Matrix& matrix);
+	void FillModMatrix(const Matrix& matrix);
+	void FillModMatrix(Matrix&& matrix);
 
 private:
 	size_t m_number_of_communities;
@@ -82,7 +85,7 @@ private:
 	// Modularity Resolution Parameter
 	// as per Newman 2016 (https://journals.aps.org/pre/abstract/10.1103/PhysRevE.94.052315)
 	double m_modularity_resolution;
-	std::vector<std::vector<double> > m_modularity_matrix;
+	Matrix m_modularity_matrix;
 	std::vector<size_t> m_communities;
 };
 
